@@ -1,0 +1,11 @@
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/bin/Release/net9.0/OptiCore.deps.json
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/bin/Release/net9.0/OptiCore.dll
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/bin/Release/net9.0/OptiCore.pdb
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/obj/Release/net9.0/OptiCore.GeneratedMSBuildEditorConfig.editorconfig
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/obj/Release/net9.0/OptiCore.AssemblyInfoInputs.cache
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/obj/Release/net9.0/OptiCore.AssemblyInfo.cs
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/obj/Release/net9.0/OptiCore.csproj.CoreCompileInputs.cache
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/obj/Release/net9.0/OptiCore.dll
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/obj/Release/net9.0/refint/OptiCore.dll
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/obj/Release/net9.0/OptiCore.pdb
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/obj/Release/net9.0/ref/OptiCore.dll
