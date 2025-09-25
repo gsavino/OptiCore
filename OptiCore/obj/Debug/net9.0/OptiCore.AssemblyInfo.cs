@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © 2025 Gaston Savino")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("OptiCore agregar descripcion....")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0-build01")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0-build01+ada9610ceb02fa43cb321d4200e9e7d4f7aeb23c")]
 [assembly: System.Reflection.AssemblyProductAttribute("OptiCore")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OptiCore")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.0.0")]
