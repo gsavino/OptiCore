@@ -5,6 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Roos.OptiCore</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Gaston Savino</Authors>
+    <Company>Roos LLC</Company>
+    <Description>Biblioteca en C# 9 para X</Description>
   </PropertyGroup>
 
   <ItemGroup>

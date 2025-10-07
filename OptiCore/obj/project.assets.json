@@ -11,7 +11,7 @@
     "/Users/gastonsavino/.nuget/packages/": {}
   },
   "project": {
-    "version": "0.1.0",
+    "version": "1.0.2",
     "restore": {
       "projectUniqueName": "/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/OptiCore.csproj",
       "projectName": "OptiCore",
@@ -26,6 +26,7 @@
         "net9.0"
       ],
       "sources": {
+        "/Users/gastonsavino/Desktop/NetProjects/LocalNuget": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

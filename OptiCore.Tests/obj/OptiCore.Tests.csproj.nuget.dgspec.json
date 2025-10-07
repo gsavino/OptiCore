@@ -8,7 +8,7 @@
       "version": "1.0.0",
       "restore": {
         "projectUniqueName": "/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/OptiCore.Tests.csproj",
-        "projectName": "OptiCore.Tests",
+        "projectName": "Roos.OptiCore",
         "projectPath": "/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/OptiCore.Tests.csproj",
         "packagesPath": "/Users/gastonsavino/.nuget/packages/",
         "outputPath": "/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/",
@@ -20,6 +20,7 @@
           "net9.0"
         ],
         "sources": {
+          "/Users/gastonsavino/Desktop/NetProjects/LocalNuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -86,7 +87,7 @@
       }
     },
     "/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/OptiCore.csproj": {
-      "version": "0.1.0",
+      "version": "1.0.2",
       "restore": {
         "projectUniqueName": "/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore/OptiCore.csproj",
         "projectName": "OptiCore",
@@ -101,6 +102,7 @@
           "net9.0"
         ],
         "sources": {
+          "/Users/gastonsavino/Desktop/NetProjects/LocalNuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

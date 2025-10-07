@@ -7,15 +7,15 @@
 
 
   <!-- Versioning -->
-    <Version>0.1.0-build01</Version>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
-    <PackageVersion>0.1.0</PackageVersion>
+    <Version>1.0.2-build01</Version>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
+    <FileVersion>1.0.0.2</FileVersion>
+    <PackageVersion>1.0.2</PackageVersion>
 
     <!-- NuGet Package Metadata -->
     <PackageId>OptiCore</PackageId>
     <Title>OptiCore</Title>
-    <Description>OptiCore agregar descripcion....</Description>
+    <Description>OptiCore is a nugget to solve linear problems with the simplex method</Description>
     <Authors>Gaston Savino</Authors>
     <Company>RoosLLC</Company>
     <PackageProjectUrl>https://github.com/roosllc/opticore</PackageProjectUrl>

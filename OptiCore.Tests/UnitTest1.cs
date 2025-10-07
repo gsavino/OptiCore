@@ -6,6 +6,7 @@ using OptiCore;
 using OptiCore.Solver;
 using Xunit.Abstractions;
 using OptiCore.Enums;
+using OptiCore.Models;
 
 // public class UnitTest1
 // {
@@ -78,6 +79,7 @@ public class SimplexTests
     // Act
     var simplex = new LoadModelFromJson(jsonModel);
 
+
     // Assert
     Assert.NotNull(simplex.ProcessedModel);
     Assert.Equal(ModelType.LinearProgramming, simplex.ProcessedModel.ModelKind);
@@ -109,7 +111,7 @@ public class SimplexTests
     _output.WriteLine("============= matrix !!!====================");
     _output.WriteLine("============= matrix !!!====================");
     _output.WriteLine("============= matrix !!!====================");
-    PrintMatrix(simplex.GetMatrix());
+    PrintMatrix(simplex.GetLinearModel().GetMatrix());
     _output.WriteLine("============= matrix !!!====================");
     _output.WriteLine("============= matrix !!!====================");
     _output.WriteLine("============= matrix !!!====================");
@@ -171,7 +173,7 @@ public class SimplexTests
   public void LoadModel_And_GetMatrix()
   {
     var loader = new LoadModelFromJson(jsonModel);
-    var matrix = loader.GetMatrix();
+    var matrix = loader.GetLinearModel().GetMatrix();
 
     PrintMatrix(matrix);
 
@@ -184,7 +186,7 @@ public class SimplexTests
   public void Simplex_GetMinColumnValueFromObjective()
   {
     var loader = new LoadModelFromJson(jsonModel);
-    var simplex = new OptiCoreSimplex(loader.GetMatrix(), loader.ProcessedModel.GetNumberOfVariables());
+    var simplex = new OptiCoreSimplex(loader.GetLinearModel());
 
     PrintMatrix(simplex.SimplexMatrix);
 
@@ -204,7 +206,7 @@ public class SimplexTests
   public void Simplex_GetPivotRow()
   {
     var loader = new LoadModelFromJson(jsonModel);
-    var simplex = new OptiCoreSimplex(loader.GetMatrix(), loader.ProcessedModel.GetNumberOfVariables());
+    var simplex = new OptiCoreSimplex(loader.GetLinearModel());
     _output.WriteLine("============= matrix !!!====================");
     _output.WriteLine("============= matrix !!!====================");
     PrintMatrix(simplex.SimplexMatrix);
@@ -224,7 +226,7 @@ public class SimplexTests
   public void Simplex_DividePivotRow()
   {
     var loader = new LoadModelFromJson(jsonModel);
-    var simplex = new OptiCoreSimplex(loader.GetMatrix(), loader.ProcessedModel.GetNumberOfVariables());
+    var simplex = new OptiCoreSimplex(loader.GetLinearModel());
     _output.WriteLine($" Variables in the game: {loader.ProcessedModel.GetNumberOfVariables()}");
     int pivotCol = simplex.GetMinColumValueFromObjective(loader.ProcessedModel.GetNumberOfVariables());
     int pivotRow = simplex.GetPivotRow(pivotCol);
@@ -242,7 +244,7 @@ public class SimplexTests
   public void Simplex_TransformTheRestOfTheMatrix()
   {
     var loader = new LoadModelFromJson(jsonModel);
-    var simplex = new OptiCoreSimplex(loader.GetMatrix(), loader.ProcessedModel.GetNumberOfVariables());
+    var simplex = new OptiCoreSimplex(loader.GetLinearModel());
     _output.WriteLine("============= matrix before dividing pivot row !!!====================");
     PrintMatrix(simplex.SimplexMatrix);
     _output.WriteLine("============= matrix !!!====================");
@@ -262,13 +264,21 @@ public class SimplexTests
   [Fact]
   public void Simplex_FullSolve()
   {
+// First I load the model from a Json with LoadModelFromJson
+
     var loader = new LoadModelFromJson(jsonModel);
     _output.WriteLine($" Variables in the game: {loader.ProcessedModel.GetNumberOfVariables()}");
     _output.WriteLine($"variablesOfConstrains: {loader.ProcessedModel.GetNumberOfVariables}");
-    var simplex = new OptiCoreSimplex(loader.GetMatrix(), loader.ProcessedModel.GetNumberOfVariables());
 
-    simplex.SolveSimplex();
+    // Now I create the solver object loading the matrix and pointing the number of variables
+    var simplex = new OptiCoreSimplex(loader.GetLinearModel());
 
+    //simplex.SolveSimplex(); ahora tengo que llamar a get
+
+    var modelResult = simplex.GetOptimalValues();
+    
+    _output.WriteLine(modelResult.PrintString());
+    
     PrintMatrix(simplex.SimplexMatrix);
 
     double result = simplex.SimplexMatrix[simplex.MaxRows - 1, simplex.MaxCols - 1];

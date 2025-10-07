@@ -93,10 +93,10 @@
 /Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/OptiCore.Tests.AssemblyInfoInputs.cache
 /Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/OptiCore.Tests.AssemblyInfo.cs
 /Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/OptiCore.Tests.csproj.CoreCompileInputs.cache
+/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/OptiCore.Tests.sourcelink.json
 /Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/OptiCore.27A09421.Up2Date
 /Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/OptiCore.Tests.dll
 /Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/refint/OptiCore.Tests.dll
 /Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/OptiCore.Tests.pdb
 /Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/OptiCore.Tests.genruntimeconfig.cache
 /Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/ref/OptiCore.Tests.dll
-/Users/gastonsavino/Desktop/NetProjects/OptiCore/OptiCore/OptiCore.Tests/obj/Debug/net9.0/OptiCore.Tests.sourcelink.json

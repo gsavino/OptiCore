@@ -2,15 +2,15 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>OptiCore</id>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
     <title>OptiCore</title>
     <authors>Gaston Savino</authors>
     <license type="expression">MIT</license>
     <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
     <projectUrl>https://github.com/roosllc/opticore</projectUrl>
-    <description>OptiCore agregar descripcion....</description>
+    <description>OptiCore is a nugget to solve linear problems with the simplex method</description>
     <copyright>Copyright © 2025 Gaston Savino</copyright>
-    <repository type="git" url="https://github.com/roosllc/opticore" />
+    <repository type="git" url="https://github.com/roosllc/opticore" commit="c194dce5250d645b8cb1da24d938dbbcdc7849a4" />
     <dependencies>
       <group targetFramework="net9.0" />
     </dependencies>
