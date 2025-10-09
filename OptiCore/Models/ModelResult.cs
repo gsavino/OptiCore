@@ -28,7 +28,7 @@ public class ModelResult
         Console.WriteLine("---------------------------------------------");
     }
 
-    public string PrintString()
+    public override string ToString()
     {
         string toPrint = $"Z = {OptimalResult} \n";
         foreach (var term in Terms)

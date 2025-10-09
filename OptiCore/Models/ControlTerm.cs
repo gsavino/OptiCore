@@ -7,15 +7,7 @@ public class ControlTerm
     public bool WasProcessed { get; set; }
 
     public double Coefficient { get; set; }
-
-    // Constructor vacío
-    public ControlTerm()
-    {
-        TermName = "";
-        Coefficient = 0;
-        WasProcessed = false;
-    }
-
+    
     // ✅ Constructor con parámetros
     public ControlTerm(string termName, double coefficient,bool wasProcessed = false)
     {

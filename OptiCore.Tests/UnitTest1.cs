@@ -1,12 +1,10 @@
 ﻿namespace OptiCore.Tests;
 
-using System;
 using Xunit;
-using OptiCore;
 using OptiCore.Solver;
 using Xunit.Abstractions;
 using OptiCore.Enums;
-using OptiCore.Models;
+
 
 // public class UnitTest1
 // {
@@ -182,84 +180,84 @@ public class SimplexTests
     Assert.Equal(5, matrix.GetLength(1)); // 2 vars + 2 holguras + RHS
   }
 
-  [Fact]
-  public void Simplex_GetMinColumnValueFromObjective()
-  {
-    var loader = new LoadModelFromJson(jsonModel);
-    var simplex = new OptiCoreSimplex(loader.GetLinearModel());
+  // [Fact]
+  // public void Simplex_GetMinColumnValueFromObjective()
+  // {
+  //   var loader = new LoadModelFromJson(jsonModel);
+  //   var simplex = new OptiCoreSimplex(loader.GetLinearModel());
+  //
+  //   PrintMatrix(simplex.SimplexMatrix);
+  //
+  //   _output.WriteLine("============= Checking the matrix limits ===================");
+  //   _output.WriteLine($" Maxcols: {simplex.MaxCols} MaxRows:{simplex.MaxRows}");
+  //   _output.WriteLine("============= matrix !!!====================");
+  //
+  //   int pivotCol = simplex.GetMinColumValueFromObjective(loader.ProcessedModel.GetNumberOfVariables());
+  //   _output.WriteLine($"Pivot Column: {pivotCol}");
+  //      _output.WriteLine("============= Value in Z ===================");
+  //   _output.WriteLine($" PivotCol: {simplex.SimplexMatrix[simplex.MaxRows-1, pivotCol]} ");
+  //   _output.WriteLine("============= matrix !!!====================");
+  //   Assert.True(pivotCol >= -1);
+  // }
 
-    PrintMatrix(simplex.SimplexMatrix);
+  // [Fact]
+  // public void Simplex_GetPivotRow()
+  // {
+  //   var loader = new LoadModelFromJson(jsonModel);
+  //   var simplex = new OptiCoreSimplex(loader.GetLinearModel());
+  //   _output.WriteLine("============= matrix !!!====================");
+  //   _output.WriteLine("============= matrix !!!====================");
+  //   PrintMatrix(simplex.SimplexMatrix);
+  //   _output.WriteLine("============= matrix !!!====================");
+  //   _output.WriteLine("============= matrix !!!====================");
+  //   int pivotCol = simplex.GetMinColumValueFromObjective(loader.ProcessedModel.GetNumberOfVariables());
+  //   _output.WriteLine("============= I'm going to call Get Pivot Row with the following value !!!====================");
+  //   _output.WriteLine($"Pivot Column: {pivotCol}");
+  //   int pivotRow = simplex.GetPivotRow(pivotCol);
+  //   _output.WriteLine("============= Now I have the coordinates fo the pivot!!!!====================");
+  //   _output.WriteLine($"Pivot Col: {pivotCol}, Pivot Row: {pivotRow}");
+  //   _output.WriteLine($"============= yes this is the pivot {simplex.SimplexMatrix[pivotRow, pivotCol]}====================");
+  //   Assert.True(pivotRow == 1);
+  // }
 
-    _output.WriteLine("============= Checking the matrix limits ===================");
-    _output.WriteLine($" Maxcols: {simplex.MaxCols} MaxRows:{simplex.MaxRows}");
-    _output.WriteLine("============= matrix !!!====================");
+  // [Fact]
+  // public void Simplex_DividePivotRow()
+  // {
+  //   var loader = new LoadModelFromJson(jsonModel);
+  //   var simplex = new OptiCoreSimplex(loader.GetLinearModel());
+  //   _output.WriteLine($" Variables in the game: {loader.ProcessedModel.GetNumberOfVariables()}");
+  //   int pivotCol = simplex.GetMinColumValueFromObjective(loader.ProcessedModel.GetNumberOfVariables());
+  //   int pivotRow = simplex.GetPivotRow(pivotCol);
+  //   _output.WriteLine("============= matrix before dividing pivot row !!!====================");
+  //   PrintMatrix(simplex.SimplexMatrix);
+  //   _output.WriteLine("============= matrix !!!====================");
+  //   simplex.DividePivotRow(pivotRow, pivotCol);
+  //   _output.WriteLine("============= matrix After dividing pivot row !!!====================");
+  //   PrintMatrix(simplex.SimplexMatrix);
+  //
+  //   Assert.Equal(1.0, simplex.SimplexMatrix[pivotRow, pivotCol]);
+  // }
 
-    int pivotCol = simplex.GetMinColumValueFromObjective(loader.ProcessedModel.GetNumberOfVariables());
-    _output.WriteLine($"Pivot Column: {pivotCol}");
-       _output.WriteLine("============= Value in Z ===================");
-    _output.WriteLine($" PivotCol: {simplex.SimplexMatrix[simplex.MaxRows-1, pivotCol]} ");
-    _output.WriteLine("============= matrix !!!====================");
-    Assert.True(pivotCol >= -1);
-  }
-
-  [Fact]
-  public void Simplex_GetPivotRow()
-  {
-    var loader = new LoadModelFromJson(jsonModel);
-    var simplex = new OptiCoreSimplex(loader.GetLinearModel());
-    _output.WriteLine("============= matrix !!!====================");
-    _output.WriteLine("============= matrix !!!====================");
-    PrintMatrix(simplex.SimplexMatrix);
-    _output.WriteLine("============= matrix !!!====================");
-    _output.WriteLine("============= matrix !!!====================");
-    int pivotCol = simplex.GetMinColumValueFromObjective(loader.ProcessedModel.GetNumberOfVariables());
-    _output.WriteLine("============= I'm going to call Get Pivot Row with the following value !!!====================");
-    _output.WriteLine($"Pivot Column: {pivotCol}");
-    int pivotRow = simplex.GetPivotRow(pivotCol);
-    _output.WriteLine("============= Now I have the coordinates fo the pivot!!!!====================");
-    _output.WriteLine($"Pivot Col: {pivotCol}, Pivot Row: {pivotRow}");
-    _output.WriteLine($"============= yes this is the pivot {simplex.SimplexMatrix[pivotRow, pivotCol]}====================");
-    Assert.True(pivotRow == 1);
-  }
-
-  [Fact]
-  public void Simplex_DividePivotRow()
-  {
-    var loader = new LoadModelFromJson(jsonModel);
-    var simplex = new OptiCoreSimplex(loader.GetLinearModel());
-    _output.WriteLine($" Variables in the game: {loader.ProcessedModel.GetNumberOfVariables()}");
-    int pivotCol = simplex.GetMinColumValueFromObjective(loader.ProcessedModel.GetNumberOfVariables());
-    int pivotRow = simplex.GetPivotRow(pivotCol);
-    _output.WriteLine("============= matrix before dividing pivot row !!!====================");
-    PrintMatrix(simplex.SimplexMatrix);
-    _output.WriteLine("============= matrix !!!====================");
-    simplex.DividePivotRow(pivotRow, pivotCol);
-    _output.WriteLine("============= matrix After dividing pivot row !!!====================");
-    PrintMatrix(simplex.SimplexMatrix);
-
-    Assert.Equal(1.0, simplex.SimplexMatrix[pivotRow, pivotCol]);
-  }
-
-  [Fact]
-  public void Simplex_TransformTheRestOfTheMatrix()
-  {
-    var loader = new LoadModelFromJson(jsonModel);
-    var simplex = new OptiCoreSimplex(loader.GetLinearModel());
-    _output.WriteLine("============= matrix before dividing pivot row !!!====================");
-    PrintMatrix(simplex.SimplexMatrix);
-    _output.WriteLine("============= matrix !!!====================");
-    int pivotCol = simplex.GetMinColumValueFromObjective(loader.ProcessedModel.GetNumberOfVariables());
-    int pivotRow = simplex.GetPivotRow(pivotCol);
-    _output.WriteLine("============= Now I have the coordinates fo the pivot!!!!====================");
-    _output.WriteLine($"Pivot Col: {pivotCol}, Pivot Row: {pivotRow}");
-    _output.WriteLine($"============= yes this is the pivot {simplex.SimplexMatrix[pivotRow, pivotCol]}====================");
-    simplex.DividePivotRow(pivotRow, pivotCol);
-    simplex.TransformTheRestOfTheMatrix(pivotRow, pivotCol);
-    _output.WriteLine("============= This is the final matrix!!!!====================");
-    PrintMatrix(simplex.SimplexMatrix);
-
-    Assert.NotEqual(0.0, simplex.SimplexMatrix[0, 0]); // cambió algo
-  }
+  // [Fact]
+  // public void Simplex_TransformTheRestOfTheMatrix()
+  // {
+  //   var loader = new LoadModelFromJson(jsonModel);
+  //   var simplex = new OptiCoreSimplex(loader.GetLinearModel());
+  //   _output.WriteLine("============= matrix before dividing pivot row !!!====================");
+  //   PrintMatrix(simplex.SimplexMatrix);
+  //   _output.WriteLine("============= matrix !!!====================");
+  //   int pivotCol = simplex.GetMinColumValueFromObjective(loader.ProcessedModel.GetNumberOfVariables());
+  //   int pivotRow = simplex.GetPivotRow(pivotCol);
+  //   _output.WriteLine("============= Now I have the coordinates fo the pivot!!!!====================");
+  //   _output.WriteLine($"Pivot Col: {pivotCol}, Pivot Row: {pivotRow}");
+  //   _output.WriteLine($"============= yes this is the pivot {simplex.SimplexMatrix[pivotRow, pivotCol]}====================");
+  //   simplex.DividePivotRow(pivotRow, pivotCol);
+  //   simplex.TransformTheRestOfTheMatrix(pivotRow, pivotCol);
+  //   _output.WriteLine("============= This is the final matrix!!!!====================");
+  //   PrintMatrix(simplex.SimplexMatrix);
+  //
+  //   Assert.NotEqual(0.0, simplex.SimplexMatrix[0, 0]); // cambió algo
+  // }
 
   [Fact]
   public void Simplex_FullSolve()
@@ -268,7 +266,7 @@ public class SimplexTests
 
     var loader = new LoadModelFromJson(jsonModel);
     _output.WriteLine($" Variables in the game: {loader.ProcessedModel.GetNumberOfVariables()}");
-    _output.WriteLine($"variablesOfConstrains: {loader.ProcessedModel.GetNumberOfVariables}");
+    _output.WriteLine($"variablesOfConstrains: {loader.ProcessedModel.GetNumberOfVariables()}");
 
     // Now I create the solver object loading the matrix and pointing the number of variables
     var simplex = new OptiCoreSimplex(loader.GetLinearModel());
@@ -277,7 +275,7 @@ public class SimplexTests
 
     var modelResult = simplex.GetOptimalValues();
     
-    _output.WriteLine(modelResult.PrintString());
+    _output.WriteLine(modelResult.ToString());
     
     PrintMatrix(simplex.SimplexMatrix);
 

@@ -11,9 +11,7 @@ public class OptiCoreSimplex
     public int MaxCols { get; set; }
     public int NumberOfVariables { get; set; }
     public LinearModel MyLinearModel { get; set; }
-
-    public ModelResult Result { get; set; }
-
+    
         public OptiCoreSimplex(LinearModel myModel)
     {
         MyLinearModel = myModel;
@@ -57,8 +55,8 @@ public class OptiCoreSimplex
         result.OptimalResult = SimplexMatrix[MaxRows - 1, MaxCols - 1];
         return result;
     }
-
-    public bool CheckConstraint(List<ControlTerm> list, int row)
+    
+    private bool CheckConstraint(List<ControlTerm> list, int row)
     {
         for (int col = 0; col < MyLinearModel.Variables.Count; col++)
         {
@@ -69,7 +67,7 @@ public class OptiCoreSimplex
         }
         return true;
     }
-    public bool CheckListOfVariables(List<ControlTerm> listOfVariables)
+    private bool CheckListOfVariables(List<ControlTerm> listOfVariables)
     {
         foreach (var term in listOfVariables)
         {
@@ -77,7 +75,7 @@ public class OptiCoreSimplex
         }
         return false;
     }
-    public void SolveSimplex()
+    private void SolveSimplex()
     {
         int maxIterations = 1000;
         int pivotColumn;
@@ -95,7 +93,7 @@ public class OptiCoreSimplex
         }
     }
 
-    public int GetMinColumValueFromObjective(int numberOfVariables)
+    private int GetMinColumValueFromObjective(int numberOfVariables)
     {
         int minCol = 0;
         for (int col = 0; col <= numberOfVariables; col++)
@@ -104,7 +102,7 @@ public class OptiCoreSimplex
         }
         return minCol;
     }
-    public int GetPivotRow(int pivotColumn)
+    private int GetPivotRow(int pivotColumn)
     {
         int selectedRow = 0;
         Double selectedValue = SimplexMatrix[selectedRow, MaxCols-1] / SimplexMatrix[selectedRow, pivotColumn];
@@ -119,7 +117,7 @@ public class OptiCoreSimplex
         return selectedRow;
     }
 
-    public void DividePivotRow(int pivotRow, int pivotColumn)
+    private void DividePivotRow(int pivotRow, int pivotColumn)
     {
         double pivot = SimplexMatrix[pivotRow, pivotColumn];
         for (int col = 0; col < MaxCols; col++)
@@ -127,7 +125,7 @@ public class OptiCoreSimplex
             SimplexMatrix[pivotRow, col] = SimplexMatrix[pivotRow, col] / pivot;
         }
     }
-    public void TransformTheRestOfTheMatrix(int pivotRow, int pivotColumn)
+    private void TransformTheRestOfTheMatrix(int pivotRow, int pivotColumn)
     {
         Double oldZ = SimplexMatrix[MaxRows - 1, pivotColumn];
         // Here I transform all the constrains, including his RHS. I don't include the pivot row because it was trasnformed diferently with the dividePivotRow Method
