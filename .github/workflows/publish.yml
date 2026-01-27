@@ -1,0 +1,30 @@
+name: Publish NuGet
+
+on:
+  push:
+    tags:
+      - 'v*' # Se activará solo cuando crees un tag (ej: v1.0.0)
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x' # Ajusta a la versión que uses
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Pack
+        run: dotnet pack --configuration Release --no-build -o dist
+
+      - name: Push to NuGet
+        run: dotnet nuget push dist/*.nupkg --api-key ${{ secrets.NUGET_AUTH_TOKEN }} --source https://api.nuget.org/v3/index.json
