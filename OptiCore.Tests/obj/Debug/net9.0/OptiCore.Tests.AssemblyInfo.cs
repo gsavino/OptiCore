@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Biblioteca en C# 9 para X")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+318d483170370e1255a7c7a1c5715413edd0f81e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+816661f221541a7048f4ec32444751575386c6ef")]
 [assembly: System.Reflection.AssemblyProductAttribute("OptiCore.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OptiCore.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
