@@ -7,15 +7,15 @@
 
 
   <!-- Versioning -->
-    <Version>1.0.3-build01</Version>
+    <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.3</AssemblyVersion>
     <FileVersion>1.0.0.3</FileVersion>
-    <PackageVersion>1.0.3</PackageVersion>
+    <PackageVersion>1.0.0</PackageVersion>
 
     <!-- NuGet Package Metadata -->
     <PackageId>OptiCore</PackageId>
     <Title>OptiCore</Title>
-    <Description>OptiCore is a nugget to solve linear problems with the simplex method</Description>
+    <Description>OptiCore: A robust optimization engine for Linear (LP) and Mixed-Integer Linear Programming (MILP). Supports the Simplex method and advanced models for solving complex problems with integer constraints.</Description>
     <Authors>Gaston Savino</Authors>
     <Company>RoosLLC</Company>
     <PackageProjectUrl>https://github.com/roosllc/opticore</PackageProjectUrl>
