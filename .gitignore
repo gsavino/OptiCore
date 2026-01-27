@@ -195,3 +195,6 @@ appsettings.local.json
 packages/*
 #MacOs
 .DS_Store
+# .NET build artifacts
+bin/
+obj/
