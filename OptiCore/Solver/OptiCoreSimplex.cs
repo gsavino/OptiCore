@@ -12,6 +12,10 @@ public class OptiCoreSimplex
     public int NumberOfVariables { get; set; }
     public LinearModel MyLinearModel { get; set; }
     
+    private bool IsSolved { get; set; }
+    
+    private ModelResult result { get; set; }
+    
         public OptiCoreSimplex(LinearModel myModel)
     {
         MyLinearModel = myModel;
@@ -19,40 +23,45 @@ public class OptiCoreSimplex
         MaxRows = SimplexMatrix.GetLength(0);
         MaxCols = SimplexMatrix.GetLength(1);
         NumberOfVariables = MaxCols - MaxRows;
+        IsSolved = false;
+        result = new ModelResult();
     }
 
     public ModelResult GetOptimalValues()
     {
-        SolveSimplex();
-        var listOfVariables = new List<ControlTerm>();
-        var result = new ModelResult();
-        foreach (var term in MyLinearModel.Variables) listOfVariables.Add(new ControlTerm(term.TermName, term.Coefficient, false));
-        var counter = 0;
-        // chechListOfVariables chequea si hay variables sin despejar o lo que es lo mismo con el valor WasProcessed en false
-        while (CheckListOfVariables(listOfVariables))
+        if (!IsSolved)
         {
-            // me fijo si puedo despejar y si la variable no fue procesada y tambien me fijo que no sea la diagonal porque es la variable a procesar.
-            if (CheckConstraint(listOfVariables, counter))
+            SolveSimplex();
+            var listOfVariables = new List<ControlTerm>();
+            foreach (var term in MyLinearModel.Variables) listOfVariables.Add(new ControlTerm(term.TermName, term.Coefficient, false));
+            var counter = 0;
+            // chechListOfVariables chequea si hay variables sin despejar o lo que es lo mismo con el valor WasProcessed en false
+            while (CheckListOfVariables(listOfVariables))
             {
-                // proceso
-                double coef = SimplexMatrix[counter, MaxCols -1];
-                for (int col = 0; col < listOfVariables.Count; col++)
+                // me fijo si puedo despejar y si la variable no fue procesada y tambien me fijo que no sea la diagonal porque es la variable a procesar.
+                if (CheckConstraint(listOfVariables, counter))
                 {
-                    if (col != counter)
+                    // proceso
+                    double coef = SimplexMatrix[counter, MaxCols -1];
+                    for (int col = 0; col < listOfVariables.Count; col++)
                     {
-                        double valueOfCoef = 0;
-                        if (listOfVariables[col].WasProcessed) valueOfCoef = listOfVariables[col].Coefficient;
-                        coef += valueOfCoef * -1.0 * SimplexMatrix[counter, col];
+                        if (col != counter)
+                        {
+                            double valueOfCoef = 0;
+                            if (listOfVariables[col].WasProcessed) valueOfCoef = listOfVariables[col].Coefficient;
+                            coef += valueOfCoef * -1.0 * SimplexMatrix[counter, col];
+                        }
                     }
+                    result.Terms.Add(new Term(listOfVariables[counter].TermName, coef));
+                    listOfVariables[counter].WasProcessed = true;
+                    listOfVariables[counter].Coefficient = coef;
                 }
-                result.Terms.Add(new Term(listOfVariables[counter].TermName, coef));
-                listOfVariables[counter].WasProcessed = true;
-                listOfVariables[counter].Coefficient = coef;
+                counter++;
+                if (listOfVariables.Count() == counter) counter = 0;
             }
-            counter++;
-            if (listOfVariables.Count() == counter) counter = 0;
-        }
-        result.OptimalResult = SimplexMatrix[MaxRows - 1, MaxCols - 1];
+            result.OptimalResult = SimplexMatrix[MaxRows - 1, MaxCols - 1];
+        } 
+
         return result;
     }
     

@@ -1,3 +1,4 @@
+using Microsoft.VisualBasic.CompilerServices;
 using OptiCore.Enums;
 
 namespace OptiCore.Models;
@@ -44,9 +45,13 @@ public record LinearModel(
             }
             matrix[i, cols - 1] = ConstraintsList[i].Rhs;
         }
-        for (int j = 0; j < Variables.Count; j++)
+
+        if (Objective.Goal == ObjectiveType.MAX)
         {
-            matrix[rows - 1, j] = Objective.GetCoefficient(Variables[j].TermName) * -1;
+            for (int j = 0; j < Variables.Count; j++)
+            {
+                matrix[rows - 1, j] = Objective.GetCoefficient(Variables[j].TermName) * -1;
+            }
         }
         matrix[rows - 1, cols - 1] = 0.0;
         return matrix;

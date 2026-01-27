@@ -11,23 +11,6 @@ public class ModelResult
         OptimalResult = 0;
     }
 
-    public bool VariableExists(int fila)
-    {
-        return fila < Terms.Count();
-    }
-    public void PrintResult()
-    {
-        Console.WriteLine("---------------------------------------------");
-        Console.WriteLine("The optimal result is: " + OptimalResult);
-        Console.WriteLine("---------------------------------------------");
-        Console.WriteLine("The value of the variables are: ");
-        foreach (var term in Terms)
-        {
-            Console.WriteLine(term.TermName + " = " + term.Coefficient);
-        }
-        Console.WriteLine("---------------------------------------------");
-    }
-
     public override string ToString()
     {
         string toPrint = $"Z = {OptimalResult} \n";
