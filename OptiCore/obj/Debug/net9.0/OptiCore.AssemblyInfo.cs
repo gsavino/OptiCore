@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © 2025 Gaston Savino")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("OptiCore is a nugget to solve linear problems with the simplex method")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.3")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.3-build01+318d483170370e1255a7c7a1c5715413edd0f81e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.3-build01+bc84cfb5c7e180b2acc99bae8dc4d223ec07ecb9")]
 [assembly: System.Reflection.AssemblyProductAttribute("OptiCore")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OptiCore")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.3")]
