@@ -7,10 +7,10 @@
 
 
   <!-- Versioning -->
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.3</AssemblyVersion>
-    <FileVersion>1.0.0.3</FileVersion>
-    <PackageVersion>1.0.0</PackageVersion>
+    <Version>1.0.4</Version>
+    <AssemblyVersion>1.0.0.4</AssemblyVersion>
+    <FileVersion>1.0.0.4</FileVersion>
+    <PackageVersion>1.0.4</PackageVersion>
 
     <!-- NuGet Package Metadata -->
     <PackageId>OptiCore</PackageId>
