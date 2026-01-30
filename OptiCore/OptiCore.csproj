@@ -15,6 +15,7 @@
     <PackageVersion>1.0.6</PackageVersion>
 
     <!-- NuGet Package Metadata -->
+    <PackageTags>optimization;linear-programming;solver;simplex;math;modeling;operations-research;data-science;opticore;dotnet</PackageTags>
     <PackageId>OptiCore</PackageId>
     <Title>OptiCore</Title>
     <Description>OptiCore: A robust optimization engine for Linear (LP) and Mixed-Integer Linear Programming (MILP). Supports the Simplex method and advanced models for solving complex problems with integer constraints.</Description>
