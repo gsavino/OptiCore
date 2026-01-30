@@ -8,11 +8,11 @@
     <PackageIcon>Opticore128.png</PackageIcon>
 
 
-  <!-- Versioning -->
-    <Version>1.0.6</Version>
-    <AssemblyVersion>1.0.0.6</AssemblyVersion>
-    <FileVersion>1.0.0.6</FileVersion>
-    <PackageVersion>1.0.6</PackageVersion>
+  <!-- Versioning  -->
+    <Version>1.0.7</Version>
+    <AssemblyVersion>1.0.0.7</AssemblyVersion>
+    <FileVersion>1.0.0.7</FileVersion>
+    <PackageVersion>1.0.7</PackageVersion>
 
     <!-- NuGet Package Metadata -->
     <PackageTags>optimization;linear-programming;solver;simplex;math;modeling;operations-research;data-science;opticore;dotnet</PackageTags>
