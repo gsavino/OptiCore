@@ -5,13 +5,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>Opticore128.png</PackageIcon>
 
 
   <!-- Versioning -->
-    <Version>1.0.5</Version>
-    <AssemblyVersion>1.0.0.5</AssemblyVersion>
-    <FileVersion>1.0.0.5</FileVersion>
-    <PackageVersion>1.0.5</PackageVersion>
+    <Version>1.0.6</Version>
+    <AssemblyVersion>1.0.0.6</AssemblyVersion>
+    <FileVersion>1.0.0.6</FileVersion>
+    <PackageVersion>1.0.6</PackageVersion>
 
     <!-- NuGet Package Metadata -->
     <PackageId>OptiCore</PackageId>
@@ -31,6 +32,7 @@
   
 <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="Opticore128.png" Pack="true" PackagePath="\" />
 </ItemGroup>
 
 </Project>

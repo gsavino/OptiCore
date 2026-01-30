@@ -60,7 +60,8 @@ public class OptiCoreSimplex
                 if (listOfVariables.Count() == counter) counter = 0;
             }
             result.OptimalResult = SimplexMatrix[MaxRows - 1, MaxCols - 1];
-        } 
+            IsSolved = true;
+        }
 
         return result;
     }
