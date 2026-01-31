@@ -1,6 +1,6 @@
 🧠 OptiCore
 
-  A lightweight C#9 library for solving Linear Programming (LP) problems using the Simplex algorithm.
+  A lightweight C#9 and C#10 library for solving Linear Programming (LP) problems using the Simplex algorithm.
 
     OptiCore provides a simple, modern API to define and solve linear optimization problems.
     You can define models using plain C# objects or load them directly from JSON — then solve them using a clean, object-oriented Simplex engine.
