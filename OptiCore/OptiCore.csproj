@@ -7,12 +7,18 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>Opticore128.png</PackageIcon>
 
+  <!-- Security  -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
 
   <!-- Versioning  -->
-    <Version>1.0.7</Version>
-    <AssemblyVersion>1.0.0.7</AssemblyVersion>
-    <FileVersion>1.0.0.7</FileVersion>
-    <PackageVersion>1.0.7</PackageVersion>
+    <Version>1.0.8</Version>
+    <AssemblyVersion>1.0.0.8</AssemblyVersion>
+    <FileVersion>1.0.0.8</FileVersion>
+    <PackageVersion>1.0.8</PackageVersion>
 
     <!-- NuGet Package Metadata -->
     <PackageTags>optimization;linear-programming;solver;simplex;math;modeling;operations-research;data-science;opticore;dotnet</PackageTags>
@@ -34,6 +40,7 @@
 <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\"/>
     <None Include="Opticore128.png" Pack="true" PackagePath="\" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
 </ItemGroup>
 
 </Project>
