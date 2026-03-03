@@ -23,6 +23,7 @@ public enum NodeStatus
 
 /// <summary>
 /// Represents a variable bound constraint created during branching.
+/// Used to enforce lower and upper bounds on variables in the B&amp;B tree.
 /// </summary>
 /// <param name="VariableName">The name of the variable being bounded.</param>
 /// <param name="LowerBound">The lower bound (null if unchanged).</param>

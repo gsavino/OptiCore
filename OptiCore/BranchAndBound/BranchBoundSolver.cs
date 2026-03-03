@@ -9,7 +9,8 @@ using OptiCore.Solver;
 namespace OptiCore.BranchAndBound;
 
 /// <summary>
-/// Branch & Bound solver for Integer and Mixed-Integer Linear Programming.
+/// Branch and Bound solver for Integer (ILP) and Mixed-Integer Linear Programming (MILP).
+/// Supports binary, integer, and continuous variables with configurable branching strategies.
 /// </summary>
 public class BranchBoundSolver
 {

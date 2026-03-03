@@ -3,6 +3,10 @@ using OptiCore.Models;
 
 namespace OptiCore.Solver;
 
+/// <summary>
+/// Simplex algorithm implementation for solving Linear Programming problems.
+/// Supports maximization and minimization with Big-M method for artificial variables.
+/// </summary>
 public class OptiCoreSimplex
 {
     public double[,] SimplexMatrix { get; set; }

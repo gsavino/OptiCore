@@ -2,6 +2,9 @@ using OptiCore.Enums;
 
 namespace OptiCore.Models;
 
+/// <summary>
+/// Represents a Linear Programming model with objective function and constraints.
+/// </summary>
 public record LinearModel(
     ModelType ModelKind,
     ModelObjective Objective,
