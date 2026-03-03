@@ -1,3 +1,4 @@
+// OptiCore v1.2.2 - Branch node with initial bounds support for binary variables
 using OptiCore.Models;
 
 namespace OptiCore.BranchAndBound;

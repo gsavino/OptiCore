@@ -1,3 +1,4 @@
+// OptiCore v1.2.2 - Simplex solver with Big-M method support
 using OptiCore.Enums;
 using OptiCore.Models;
 

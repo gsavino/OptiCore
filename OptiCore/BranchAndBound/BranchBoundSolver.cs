@@ -1,3 +1,4 @@
+// OptiCore v1.2.2 - Branch & Bound solver with binary variable support
 using System.Diagnostics;
 using OptiCore.BranchAndBound.Strategies;
 using OptiCore.BranchAndBound.Strategies.Branching;
