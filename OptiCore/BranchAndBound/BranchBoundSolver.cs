@@ -61,8 +61,9 @@ public class BranchBoundSolver
 
         try
         {
-            // Initialize with root node
-            var rootNode = BranchNode.CreateRoot();
+            // Initialize with root node that includes initial bounds from integer variables
+            var initialBounds = CreateInitialBounds();
+            var rootNode = BranchNode.CreateRootWithBounds(initialBounds);
             _openNodes.Add(rootNode);
 
             // Main B&B loop
@@ -211,7 +212,7 @@ public class BranchBoundSolver
                 // x <= ub constraint
                 var constraint = new Constraint(
                     ConstraintName: $"_branch_{bound.VariableName}_ub_{bound.UpperBound.Value}",
-                    Coefficients: new List<Term> { new Term(bound.VariableName, 1.0) },
+                    Coefficients: CreateSingleVariableCoefficients(model.Variables, bound.VariableName, 1.0),
                     Operator: "<=",
                     Rhs: bound.UpperBound.Value
                 );
@@ -220,12 +221,12 @@ public class BranchBoundSolver
 
             if (bound.LowerBound.HasValue)
             {
-                // x >= lb constraint (converted to -x <= -lb)
+                // x >= lb constraint (now handled natively by simplex)
                 var constraint = new Constraint(
                     ConstraintName: $"_branch_{bound.VariableName}_lb_{bound.LowerBound.Value}",
-                    Coefficients: new List<Term> { new Term(bound.VariableName, -1.0) },
-                    Operator: "<=",
-                    Rhs: -bound.LowerBound.Value
+                    Coefficients: CreateSingleVariableCoefficients(model.Variables, bound.VariableName, 1.0),
+                    Operator: ">=",
+                    Rhs: bound.LowerBound.Value
                 );
                 newConstraints.Add(constraint);
             }
@@ -237,6 +238,27 @@ public class BranchBoundSolver
             ConstraintsList: newConstraints,
             Variables: model.Variables
         );
+    }
+
+    /// <summary>
+    /// Creates a coefficient list for a single variable constraint.
+    /// All variables must be included with coefficient 0 except the target variable.
+    /// </summary>
+    private static List<Term> CreateSingleVariableCoefficients(IReadOnlyList<Term> variables, string targetVariable, double coefficient)
+    {
+        var coefficients = new List<Term>();
+        foreach (var v in variables)
+        {
+            if (v.TermName.Equals(targetVariable, StringComparison.OrdinalIgnoreCase))
+            {
+                coefficients.Add(new Term(v.TermName, coefficient));
+            }
+            else
+            {
+                coefficients.Add(new Term(v.TermName, 0.0));
+            }
+        }
+        return coefficients;
     }
 
     private bool IsGapSatisfied()
@@ -335,5 +357,43 @@ public class BranchBoundSolver
 
         // For regular LP or MILP without explicit specification, return empty list
         return Array.Empty<IntegerTerm>();
+    }
+
+    /// <summary>
+    /// Creates initial variable bounds from integer variable definitions.
+    /// This ensures binary variables have 0 <= x <= 1 from the start.
+    /// </summary>
+    private List<VariableBound> CreateInitialBounds()
+    {
+        var bounds = new List<VariableBound>();
+
+        foreach (var intVar in _integerVariables)
+        {
+            double? lowerBound = null;
+            double? upperBound = null;
+
+            if (intVar.Type == VariableType.Binary)
+            {
+                // Binary variables must be between 0 and 1
+                lowerBound = 0.0;
+                upperBound = 1.0;
+            }
+            else if (intVar.Type == VariableType.Integer)
+            {
+                // Use explicit bounds if provided
+                if (intVar.LowerBound.HasValue)
+                    lowerBound = intVar.LowerBound.Value;
+                if (intVar.UpperBound.HasValue)
+                    upperBound = intVar.UpperBound.Value;
+            }
+
+            // Only add if there are actual bounds to enforce
+            if (lowerBound.HasValue || upperBound.HasValue)
+            {
+                bounds.Add(new VariableBound(intVar.TermName, lowerBound, upperBound));
+            }
+        }
+
+        return bounds;
     }
 }

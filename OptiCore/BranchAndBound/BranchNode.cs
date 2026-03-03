@@ -71,6 +71,20 @@ public record BranchNode(
     }
 
     /// <summary>
+    /// Creates the root node with initial variable bounds (e.g., for binary variables).
+    /// </summary>
+    /// <param name="initialBounds">The initial bounds to apply.</param>
+    public static BranchNode CreateRootWithBounds(IReadOnlyList<VariableBound> initialBounds)
+    {
+        return new BranchNode(
+            NodeId: 0,
+            ParentId: null,
+            Depth: 0,
+            VariableBounds: initialBounds
+        );
+    }
+
+    /// <summary>
     /// Creates a child node by adding a new variable bound.
     /// </summary>
     /// <param name="childNodeId">The ID for the new child node.</param>
