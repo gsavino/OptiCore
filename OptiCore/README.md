@@ -172,8 +172,8 @@ MIT License
 
 ## Author
 
-Gaston Savino - [RoosLLC](https://github.com/roosllc)
+Gaston Savino - [RoosLLC](https://github.com/gsavino/OptiCore)
 
 ## Repository
 
-https://github.com/roosllc/opticore
+https://github.com/gsavino/OptiCore

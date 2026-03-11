@@ -14,11 +14,11 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
 
-  <!-- Versioning - v1.2.2: Fixed Simplex algorithm and Branch & Bound solver -->
-    <Version>1.2.2</Version>
-    <AssemblyVersion>1.2.2.0</AssemblyVersion>
-    <FileVersion>1.2.2.0</FileVersion>
-    <PackageVersion>1.2.2</PackageVersion>
+  <!-- Versioning - v1.2.3: Updates to optimization algorithms -->
+    <Version>1.2.3</Version>
+    <AssemblyVersion>1.2.3.0</AssemblyVersion>
+    <FileVersion>1.2.3.0</FileVersion>
+    <PackageVersion>1.2.3</PackageVersion>
 
     <!-- NuGet Package Metadata -->
     <PackageTags>optimization;linear-programming;solver;simplex;math;modeling;operations-research;data-science;opticore;dotnet</PackageTags>
