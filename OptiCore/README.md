@@ -21,7 +21,7 @@ OptiCore provides a native .NET solution for mathematical optimization without e
 dotnet add package OptiCore
 ```
 
-## Quick Start
+## Quick Start 
 
 ### Solving a Linear Program
 

@@ -3,12 +3,12 @@ using OptiCore.BranchAndBound.Strategies;
 namespace OptiCore.BranchAndBound;
 
 /// <summary>
-/// Configuration options for the Branch & Bound solver.
+/// Configuration options for the Branch & Bound solver. 
 /// </summary>
 public class BranchBoundOptions
 {
     /// <summary>
-    /// Maximum number of nodes to explore (default: 100,000).
+    /// Maximum number of nodes to explore (default: 100,000). 
     /// </summary>
     public int MaxNodes { get; init; } = 100_000;
 
