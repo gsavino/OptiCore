@@ -14,11 +14,11 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
 
-  <!-- Versioning - v1.2.5: Performance optimizations -->
-    <Version>1.2.5</Version>
-    <AssemblyVersion>1.2.5.0</AssemblyVersion>
-    <FileVersion>1.2.5.0</FileVersion>
-    <PackageVersion>1.2.5</PackageVersion>
+  <!-- Versioning - v1.2.6: Documentation and Claude Code skill support -->
+    <Version>1.2.6</Version>
+    <AssemblyVersion>1.2.6.0</AssemblyVersion>
+    <FileVersion>1.2.6.0</FileVersion>
+    <PackageVersion>1.2.6</PackageVersion>
 
     <!-- NuGet Package Metadata -->
     <PackageTags>optimization;linear-programming;solver;simplex;math;modeling;operations-research;data-science;opticore;dotnet</PackageTags>

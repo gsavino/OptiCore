@@ -1,186 +1,162 @@
-🧠 OptiCore
+# OptiCore
 
-  A lightweight C#9 and C#10 library for solving Linear Programming (LP) problems using the Simplex algorithm.
+A lightweight, open-source optimization engine for solving **Linear Programming (LP)**, **Integer Linear Programming (ILP)**, and **Mixed-Integer Linear Programming (MILP)** problems in .NET.
 
-    OptiCore provides a simple, modern API to define and solve linear optimization problems.
-    You can define models using plain C# objects or load them directly from JSON — then solve them using a clean, object-oriented Simplex engine.
+## Overview
 
-🚀 Features
+OptiCore provides a native .NET solution for mathematical optimization without external dependencies on commercial solvers. It supports **continuous (real)**, **integer**, and **binary (boolean)** decision variables, making it suitable for a wide range of optimization problems — from simple resource allocation to complex scheduling and combinatorial optimization.
 
-    Define Linear Programming (LP) models with minimal code.
+### Supported Problem Types
 
-    Load models from JSON or build them programmatically.
+| Problem Type | Variable Types | Solver |
+|---|---|---|
+| **Linear Programming (LP)** | Continuous (real) variables | Simplex |
+| **Integer Linear Programming (ILP)** | Integer and/or binary variables | Branch & Bound |
+| **Mixed-Integer Linear Programming (MILP)** | Mix of continuous, integer, and binary variables | Branch & Bound / Branch & Cut |
 
-    Solve LP problems via a built-in Simplex implementation.
+## Features
 
-    Retrieve both the optimal result and variable assignments.
+- **Linear Programming (LP)** — Continuous optimization using the Simplex method with Big-M support
+- **Integer Linear Programming (ILP)** — Pure integer problems solved with Branch & Bound
+- **Mixed-Integer Linear Programming (MILP)** — Combined continuous, integer, and binary variables
+- **Binary (Boolean) Variables** — Model yes/no decisions, assignments, and logical constraints
+- **Branch & Cut** — Enhanced solving with Gomory cutting planes for tighter bounds
+- **Pluggable Strategies** — Customizable branching and node selection strategies
+- **Solution Pool** — Track multiple best solutions during optimization
+- **JSON Model Loading** — Define models in JSON and load them directly
+- **Maximization and Minimization** — Support for both objective directions
 
-    Fully compatible with .NET 5+ / C# 9.
+## Variable Types
 
-📦 Installation
+OptiCore supports three types of decision variables:
+
+| Type | Description | Example Use Cases |
+|---|---|---|
+| **Continuous** | Real-valued (any decimal value) | Production quantities, blending ratios |
+| **Integer** | Whole numbers only | Number of trucks, staff shifts |
+| **Binary** | 0 or 1 (boolean) | Yes/no decisions, facility open/close, task assignments |
+
+## Installation
+
+```bash
 dotnet add package OptiCore
+```
 
-🧩 1. Loading and Creating Linear Models
+## Quick Start
 
-    You can load or define a linear model in two ways.
+### 1. Solving a Linear Program (Continuous Variables)
 
-1.1 Load from JSON
+```csharp
+using OptiCore.Models;
+using OptiCore.Solver;
+using OptiCore.Enums;
 
-    Use LoadModelFromJson to transform a JSON string or file into a LinearModel object.
-
-var loader = new LoadModelFromJson();
-LinearModel model = loader.FromString(jsonModel);
-
-Example JSON
+// Define variables
+var variables = new List<Term>
 {
-  "Type": "linearProgramming",
-  "Objective": {
-    "Goal": "max",
-    "Coefficients": [
-      { "TermName": "x1", "Coefficient": 3.0 },
-      { "TermName": "x2", "Coefficient": 5.0 }
-    ]
-  },
-  "ConstraintsList": [
+    new Term("x1", 0),
+    new Term("x2", 0)
+};
+
+// Define objective: maximize 3*x1 + 2*x2
+var objective = new ModelObjective(
+    Goal: ObjectiveType.MAX,
+    Coefficients: new List<Term>
     {
-      "ConstraintName": "c1",
-      "Coefficients": [
-        { "TermName": "x1", "Coefficient": 2.0 },
-        { "TermName": "x2", "Coefficient": 3.0 }
-      ],
-      "Operator": "<=",
-      "Rhs": 12.0
-    },
-    {
-      "ConstraintName": "c2",
-      "Coefficients": [
-        { "TermName": "x1", "Coefficient": -1.0 },
-        { "TermName": "x2", "Coefficient": 1.0 }
-      ],
-      "Operator": "<=",
-      "Rhs": 3.0
-    }
-  ],
-  "Variables": [
-    { "TermName": "x1", "Coefficient": 0.0 },
-    { "TermName": "x2", "Coefficient": 0.0 }
-  ]
-}
-
-1.2 Create the Model Directly in C#
-
-  Alternatively, you can create a model directly using C# records.
-
-var model = new LinearModel(
-    ModelType.Maximization,
-    new ModelObjective(new List<Term> {
-        new Term("x1", 3.0),
-        new Term("x2", 5.0)
-    }),
-    new List<Constraint> {
-        new Constraint(
-            "c1",
-            new List<Term> {
-                new Term("x1", 2.0),
-                new Term("x2", 3.0)
-            },
-            "<=",
-            12.0
-        ),
-        new Constraint(
-            "c2",
-            new List<Term> {
-                new Term("x1", -1.0),
-                new Term("x2", 1.0)
-            },
-            "<=",
-            3.0
-        )
-    },
-    new List<Term> {
-        new Term("x1", 0.0),
-        new Term("x2", 0.0)
+        new Term("x1", 3),
+        new Term("x2", 2)
     }
 );
 
-⚙️ 2. Solving the Model
-
-  Once your model is ready, use the OptiCoreSimplex solver to compute the optimal solution.
-
-    2.1 Load the Model into the Solver
-
-      Pass your LinearModel instance to the solver’s constructor:
-
-      var solver = new OptiCoreSimplex(model);
-
-    2.2 Get the Optimal Solution
-
-      Call GetOptimalValues() to solve and retrieve the results as a ModelResult object.
-
-      ModelResult result = solver.GetOptimalValues();
-      Console.WriteLine(result);
-
-      🧮 Example Output
-      Z = 27
-      Variable x1 = 3
-      Variable x2 = 3
-
-      🧱 Core Classes
-      Term
-
-      Represents a single variable and its coefficient.
-
-      public record Term(
-          string TermName,
-          double Coefficient
-      );
-
-  Constraint
-
-    Represents a linear constraint of the model.
-
-      public record Constraint(
-      string ConstraintName,
-      List<Term> Coefficients,
-      string Operator,
-      double Rhs
-    ) : ConstraintBase
-    {
-        public override List<Term> Coefficients { get; init; } = Coefficients;
-    }
-
-  ModelResult
-
-    Contains the solution result of a solved linear model.
-
-public class ModelResult
+// Define constraints
+var constraints = new List<Constraint>
 {
-    public List<Term> Terms { get; set; }
-    public double OptimalResult { get; set; }
+    new Constraint("c1", new List<Term> { new Term("x1", 1), new Term("x2", 1) }, "<=", 4),
+    new Constraint("c2", new List<Term> { new Term("x1", 2), new Term("x2", 1) }, "<=", 5)
+};
 
-    public ModelResult()
-    {
-        Terms = [];
-        OptimalResult = 0;
-    }
+// Create and solve the model
+var model = new LinearModel(
+    ModelKind: ModelType.LinearProgramming,
+    Objective: objective,
+    ConstraintsList: constraints,
+    Variables: variables
+);
 
-    public override string ToString()
-    {
-        string toPrint = $"Z = {OptimalResult}\n";
-        foreach (var term in Terms)
-        {
-            toPrint += $"Variable {term.TermName} = {term.Coefficient}\n";
-        }
-        return toPrint;
-    }
-}
+var simplex = new OptiCoreSimplex(model);
+var result = simplex.GetOptimalValues();
+Console.WriteLine(result);
+```
 
-🧠 Quick Example (End-to-End)
-using OptiCore;
+### 2. Solving an Integer/Mixed-Integer Program
 
-// Load model from JSON
+Use `IntegerTerm` to define integer and binary variables, then solve with the Branch & Bound solver:
+
+```csharp
+using OptiCore.BranchAndBound;
+using OptiCore.Models;
+using OptiCore.Enums;
+
+// Define integer and binary variables
+var integerVars = new List<IntegerTerm>
 {
-  "Type": "linearProgramming",
+    new IntegerTerm("x1", 0, VariableType.Integer),  // Integer variable
+    new IntegerTerm("x2", 0, VariableType.Binary)     // Binary (boolean) variable: 0 or 1
+};
+
+var model = new LinearModel(
+    ModelKind: ModelType.MixedIntegerLinearProgramming,
+    Objective: objective,
+    ConstraintsList: constraints,
+    Variables: variables
+);
+
+// Configure and solve
+var options = new BranchBoundOptions
+{
+    MaxNodes = 100_000,
+    MaxTimeSeconds = 3600,
+    GapTolerance = 1e-4
+};
+
+var solver = new BranchBoundSolver(model, integerVars, options);
+var result = solver.Solve();
+
+Console.WriteLine($"Status: {result.Status}");
+Console.WriteLine($"Objective: {result.ObjectiveValue}");
+Console.WriteLine($"Gap: {result.GapPercent}%");
+```
+
+### 3. Using Branch & Cut (for Tighter Bounds)
+
+Branch & Cut combines Branch & Bound with Gomory cutting planes for improved performance on difficult problems:
+
+```csharp
+var options = new BranchBoundOptions
+{
+    EnableCuts = true,
+    MaxCutRoundsPerNode = 10,
+    MinCutImprovement = 1e-4
+};
+
+var solver = new BranchAndCutSolver(model, integerVars, options);
+var result = solver.Solve();
+```
+
+### 4. Loading a Model from JSON
+
+Define your optimization model in JSON — supports LP, ILP, and MILP problem types:
+
+```csharp
+var loader = new LoadModelFromJson(jsonModel);
+var model = loader.GetLinearModel();
+```
+
+**Example JSON:**
+
+```json
+{
+  "Type": "mixedIntegerLinearProgramming",
   "Objective": {
     "Goal": "max",
     "Coefficients": [
@@ -213,23 +189,71 @@ using OptiCore;
     { "TermName": "x2", "Coefficient": 0.0 }
   ]
 }
+```
 
+Supported `Type` values: `"linearProgramming"`, `"integerLinearProgramming"`, `"mixedIntegerLinearProgramming"`
 
-var loader = new LoadModelFromJson();
-LinearModel model = loader.FromString(jsonModel);
+Supported constraint operators: `"<="`, `">="`, `"="`
 
-// Solve
-var solver = new OptiCoreSimplex(model);
-var result = solver.GetOptimalValues();
+## Configuration Options
 
-Console.WriteLine(result);
+| Option | Default | Description |
+|---|---|---|
+| `MaxNodes` | 100,000 | Maximum nodes to explore |
+| `MaxTimeSeconds` | 3600 | Time limit in seconds |
+| `GapTolerance` | 1e-4 | Relative optimality gap |
+| `AbsoluteGapTolerance` | 1e-6 | Absolute optimality gap |
+| `IntegralityTolerance` | 1e-6 | Tolerance for integer feasibility |
+| `SolutionPoolSize` | 5 | Number of best solutions to keep |
+| `EnableCuts` | false | Enable cutting plane generation |
+| `MaxCutRoundsPerNode` | 10 | Cut generation rounds per node |
+| `MinCutImprovement` | 1e-4 | Minimum LP improvement to continue cuts |
 
-    🔮 Future Enhancements
+### Pre-configured Presets
 
-          Mixed-Integer Linear Programming (MILP) support
+```csharp
+BranchBoundOptions.Default  // Balanced settings
+BranchBoundOptions.Quick    // 10K nodes, 60s, 1% gap — faster solving
+BranchBoundOptions.Optimal  // 1M nodes, 2h, 1e-6 gap, cuts enabled — prove optimality
+```
 
-          Dual Simplex method
+## Solving Strategies
 
-          External solver integration
+### Node Selection Strategies
 
-          Sensitivity analysis
+- **Best Bound** (default) — Selects node with best LP relaxation bound
+- **Best Estimate** — Hybrid strategy balancing bound quality and search depth
+- **Depth First** — Explores deeply before backtracking; finds feasible solutions quickly
+
+### Branching Strategies
+
+- **Most Fractional** — Branches on variable closest to 0.5
+- **Pseudo-Cost Branching** — Learns from historical branching effectiveness
+
+## Project Structure
+
+```
+OptiCore/
+├── Models/           # Core model classes (LinearModel, Term, IntegerTerm, Constraint)
+├── Solver/           # Simplex and Branch & Cut solvers
+├── BranchAndBound/   # Branch & Bound framework, strategies, and solution pool
+├── Cuts/             # Cutting plane generators (Gomory fractional & mixed-integer)
+├── Enums/            # Type definitions (VariableType, ModelType, ObjectiveType)
+└── Abstract/         # Base classes
+```
+
+## Requirements
+
+- .NET 9.0 or later
+
+## License
+
+MIT License
+
+## Author
+
+Gaston Savino — [RoosLLC](https://github.com/gsavino/OptiCore)
+
+## Repository
+
+https://github.com/gsavino/OptiCore
