@@ -14,11 +14,11 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
 
-  <!-- Versioning - v1.2.3: Updates to optimization algorithms -->
-    <Version>1.2.3</Version>
-    <AssemblyVersion>1.2.3.0</AssemblyVersion>
-    <FileVersion>1.2.3.0</FileVersion>
-    <PackageVersion>1.2.3</PackageVersion>
+  <!-- Versioning - v1.2.5: Performance optimizations -->
+    <Version>1.2.5</Version>
+    <AssemblyVersion>1.2.5.0</AssemblyVersion>
+    <FileVersion>1.2.5.0</FileVersion>
+    <PackageVersion>1.2.5</PackageVersion>
 
     <!-- NuGet Package Metadata -->
     <PackageTags>optimization;linear-programming;solver;simplex;math;modeling;operations-research;data-science;opticore;dotnet</PackageTags>
@@ -27,8 +27,8 @@
     <Description>OptiCore: A robust optimization engine for Linear (LP) and Mixed-Integer Linear Programming (MILP). Supports the Simplex method and advanced models for solving complex problems with integer constraints.</Description>
     <Authors>Gaston Savino</Authors>
     <Company>RoosLLC</Company>
-    <PackageProjectUrl>https://github.com/roosllc/opticore</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/roosllc/opticore</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/gsavino/OptiCore</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/gsavino/OptiCore</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

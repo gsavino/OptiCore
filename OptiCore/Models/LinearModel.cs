@@ -1,4 +1,4 @@
-// OptiCore v1.2.2 - Linear model with support for <=, >=, and = constraints
+// OptiCore v1.2.5 - Linear model with support for <=, >=, and = constraints
 using OptiCore.Enums;
 
 namespace OptiCore.Models;
