@@ -1,4 +1,5 @@
-# OptiCore
+# OptiCore - nuget.org
+# See CLaude Code Skills down in this file!
 
 A lightweight, open-source optimization engine for solving **Linear Programming (LP)**, **Integer Linear Programming (ILP)**, and **Mixed-Integer Linear Programming (MILP)** problems in .NET.
 
