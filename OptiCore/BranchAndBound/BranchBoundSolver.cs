@@ -10,8 +10,12 @@ using OptiCore.Solver;
 namespace OptiCore.BranchAndBound;
 
 /// <summary>
-/// Branch and Bound solver for Integer (ILP) and Mixed-Integer Linear Programming (MILP).
-/// Supports binary, integer, and continuous variables with configurable branching strategies.
+/// Branch &amp; Bound solver for Integer (ILP) and Mixed-Integer Linear Programming (MILP) problems.
+/// Works by recursively partitioning the feasible region: at each node, the LP relaxation is solved;
+/// if the solution has fractional integer variables, the problem is split into two sub-problems by
+/// bounding the fractional variable (x &lt;= floor and x &gt;= ceil). Nodes are pruned when their LP bound
+/// cannot improve the best known integer solution (incumbent). Supports configurable node selection
+/// and branching strategies.
 /// </summary>
 public class BranchBoundSolver
 {
@@ -53,9 +57,11 @@ public class BranchBoundSolver
     }
 
     /// <summary>
-    /// Solves the integer programming problem.
+    /// Main solve method. Creates the root node with initial bounds, then iterates the B&amp;B loop:
+    /// select node, solve LP relaxation, check integrality, prune or branch. Returns when the tree
+    /// is exhausted, gap tolerance is met, or resource limits are hit.
     /// </summary>
-    /// <returns>The result of the solve.</returns>
+    /// <returns>A <see cref="BranchBoundResult"/> containing the best solution found, status, and statistics.</returns>
     public BranchBoundResult Solve()
     {
         _stopwatch = Stopwatch.StartNew();
@@ -120,6 +126,12 @@ public class BranchBoundSolver
         }
     }
 
+    /// <summary>
+    /// Processes a single B&amp;B tree node: applies variable bounds to create a bounded LP, solves it
+    /// with the simplex method, checks if the solution should be pruned (worse than incumbent),
+    /// checks integrality, and either records an integer solution or creates child branches.
+    /// </summary>
+    /// <param name="node">The node to process.</param>
     private void ProcessNode(BranchNode node)
     {
         _nodesExplored++;
@@ -176,6 +188,12 @@ public class BranchBoundSolver
         CreateChildNodes(node, branchDecision);
     }
 
+    /// <summary>
+    /// Creates two child nodes from a branching decision: a down branch (x &lt;= floor) and
+    /// an up branch (x &gt;= ceil), and adds them to the open node list.
+    /// </summary>
+    /// <param name="parent">The parent node being branched.</param>
+    /// <param name="decision">The branching decision specifying variable and bound values.</param>
     private void CreateChildNodes(BranchNode parent, BranchingDecision decision)
     {
         // Down branch: x <= floor(value)
@@ -200,6 +218,13 @@ public class BranchBoundSolver
         _openNodes.Add(upNode);
     }
 
+    /// <summary>
+    /// Creates a new <see cref="LinearModel"/> with additional constraints enforcing the variable bounds
+    /// accumulated along the B&amp;B tree path from root to the current node.
+    /// </summary>
+    /// <param name="model">The original linear model.</param>
+    /// <param name="bounds">The variable bounds to enforce as constraints.</param>
+    /// <returns>A new model with bound constraints appended, or the original model if no bounds exist.</returns>
     private LinearModel ApplyVariableBounds(LinearModel model, IReadOnlyList<VariableBound> bounds)
     {
         if (bounds.Count == 0)
@@ -243,9 +268,14 @@ public class BranchBoundSolver
     }
 
     /// <summary>
-    /// Creates a coefficient list for a single variable constraint.
-    /// All variables must be included with coefficient 0 except the target variable.
+    /// Helper to build a coefficient list for a bound constraint where only one variable has a
+    /// non-zero coefficient. All other variables receive a coefficient of zero, as required by
+    /// the constraint model.
     /// </summary>
+    /// <param name="variables">The full list of variables in the model.</param>
+    /// <param name="targetVariable">The variable to assign the non-zero coefficient to.</param>
+    /// <param name="coefficient">The coefficient value for the target variable.</param>
+    /// <returns>A list of <see cref="Term"/> instances with only the target variable having a non-zero coefficient.</returns>
     private static List<Term> CreateSingleVariableCoefficients(IReadOnlyList<Term> variables, string targetVariable, double coefficient)
     {
         var coefficients = new List<Term>();
@@ -263,6 +293,11 @@ public class BranchBoundSolver
         return coefficients;
     }
 
+    /// <summary>
+    /// Checks whether the relative or absolute optimality gap between the incumbent and the best
+    /// open-node bound is within the configured tolerance.
+    /// </summary>
+    /// <returns><c>true</c> if the gap is satisfied or no open nodes remain; otherwise <c>false</c>.</returns>
     private bool IsGapSatisfied()
     {
         if (!_solutionPool.IncumbentValue.HasValue)
@@ -289,6 +324,11 @@ public class BranchBoundSolver
         return gap <= _options.GapTolerance;
     }
 
+    /// <summary>
+    /// Returns the best (tightest) LP relaxation bound among all open nodes.
+    /// For maximization returns the maximum; for minimization returns the minimum.
+    /// </summary>
+    /// <returns>The best bound, or <c>null</c> if no open nodes have been solved.</returns>
     private double? GetBestBoundFromOpenNodes()
     {
         var nodesWithBounds = _openNodes.Where(n => n.LpBound.HasValue).ToList();
@@ -300,6 +340,10 @@ public class BranchBoundSolver
             : nodesWithBounds.Min(n => n.LpBound!.Value);
     }
 
+    /// <summary>
+    /// Creates a <see cref="BranchBoundResult"/> with <see cref="BranchBoundStatus.Optimal"/> status
+    /// using the current incumbent solution and statistics.
+    /// </summary>
     private BranchBoundResult CreateOptimalResult()
     {
         return BranchBoundResult.CreateOptimal(
@@ -311,6 +355,12 @@ public class BranchBoundSolver
         );
     }
 
+    /// <summary>
+    /// Creates a <see cref="BranchBoundResult"/> for early termination (node limit or time limit).
+    /// If an incumbent exists, returns a feasible result with the current gap; otherwise returns
+    /// a result with only statistics.
+    /// </summary>
+    /// <param name="status">The termination reason.</param>
     private BranchBoundResult CreateTerminationResult(BranchBoundStatus status)
     {
         if (_solutionPool.Incumbent != null)
@@ -335,6 +385,9 @@ public class BranchBoundSolver
         }
     }
 
+    /// <summary>
+    /// Collects and returns the current solving statistics.
+    /// </summary>
     private BranchBoundStatistics GetStatistics()
     {
         return new BranchBoundStatistics
@@ -349,6 +402,12 @@ public class BranchBoundSolver
         };
     }
 
+    /// <summary>
+    /// Infers integer variable definitions from the model type. For ILP models, all variables are
+    /// treated as integer. For other model types, returns an empty list.
+    /// </summary>
+    /// <param name="model">The linear model.</param>
+    /// <returns>A list of <see cref="IntegerTerm"/> definitions.</returns>
     private static IReadOnlyList<IntegerTerm> CreateIntegerVariablesFromModel(LinearModel model)
     {
         // For ILP, all variables are integer; for MILP, need explicit specification
@@ -362,9 +421,11 @@ public class BranchBoundSolver
     }
 
     /// <summary>
-    /// Creates initial variable bounds from integer variable definitions.
-    /// This ensures binary variables have 0 <= x <= 1 from the start.
+    /// Sets up initial variable bounds from integer variable definitions, ensuring binary variables
+    /// start with 0 &lt;= x &lt;= 1. For general integer variables, applies any explicit lower/upper
+    /// bounds provided in the <see cref="IntegerTerm"/> definitions.
     /// </summary>
+    /// <returns>A list of <see cref="VariableBound"/> constraints for the root node.</returns>
     private List<VariableBound> CreateInitialBounds()
     {
         var bounds = new List<VariableBound>();

@@ -5,15 +5,39 @@ using OptiCore.Models;
 namespace OptiCore.Solver;
 
 /// <summary>
-/// Simplex algorithm implementation for solving Linear Programming problems.
-/// Supports maximization and minimization with Big-M method for artificial variables.
+/// Core simplex method implementation for solving Linear Programming (LP) problems.
+/// Operates on a tableau matrix where each row represents a constraint and the last row
+/// is the objective function. The algorithm iteratively selects entering variables (most
+/// negative reduced cost) and leaving variables (minimum ratio test), performing pivot
+/// operations to improve the solution until optimality is reached. Supports the Big-M
+/// method for handling >= and = constraints via artificial variables.
 /// </summary>
 public class OptiCoreSimplex
 {
+    /// <summary>
+    /// The simplex tableau matrix. Rows = constraints + 1 (objective row).
+    /// Columns = decision variables + slack/surplus + artificial + RHS.
+    /// </summary>
     public double[,] SimplexMatrix { get; set; }
+
+    /// <summary>
+    /// Number of rows in the tableau matrix (constraints + objective row).
+    /// </summary>
     public int MaxRows { get; set; }
+
+    /// <summary>
+    /// Number of columns in the tableau matrix (all variables + RHS).
+    /// </summary>
     public int MaxCols { get; set; }
+
+    /// <summary>
+    /// Count of original decision variables (excludes slack/surplus and artificial variables).
+    /// </summary>
     public int NumberOfVariables { get; set; }
+
+    /// <summary>
+    /// The linear model being solved.
+    /// </summary>
     public LinearModel MyLinearModel { get; set; }
 
     private bool IsSolved { get; set; }
@@ -21,10 +45,21 @@ public class OptiCoreSimplex
     private bool _isUnbounded { get; set; }
     private bool _isInfeasible { get; set; }
 
-    // Track where artificial variables start in the matrix
+    /// <summary>
+    /// Column index where artificial variables start in the tableau.
+    /// </summary>
     private int _artificialStartIndex;
+
+    /// <summary>
+    /// Total number of artificial variables in the tableau.
+    /// </summary>
     private int _artificialCount;
 
+    /// <summary>
+    /// Initializes the simplex solver by building the tableau matrix from the linear model
+    /// and calculating artificial variable positions.
+    /// </summary>
+    /// <param name="myModel">The linear programming model to solve.</param>
     public OptiCoreSimplex(LinearModel myModel)
     {
         MyLinearModel = myModel;
@@ -41,6 +76,12 @@ public class OptiCoreSimplex
         CalculateArtificialVariableInfo();
     }
 
+    /// <summary>
+    /// Counts slack and artificial variables needed based on constraint types.
+    /// Determines where artificial variable columns start in the tableau.
+    /// &lt;= constraints need one slack variable; >= constraints need one slack and one artificial;
+    /// = constraints need one artificial variable.
+    /// </summary>
     private void CalculateArtificialVariableInfo()
     {
         int slackCount = 0;
@@ -67,6 +108,12 @@ public class OptiCoreSimplex
         _artificialStartIndex = NumberOfVariables + slackCount;
     }
 
+    /// <summary>
+    /// Main entry point. Runs the simplex algorithm if not already solved, then extracts
+    /// and returns the solution (variable values + optimal Z). Handles infeasible cases
+    /// (returns NaN) and unbounded cases (returns +/- Infinity).
+    /// </summary>
+    /// <returns>A <see cref="ModelResult"/> containing the optimal variable values and objective value.</returns>
     public ModelResult GetOptimalValues()
     {
         if (!IsSolved)
@@ -114,10 +161,10 @@ public class OptiCoreSimplex
     public bool IsUnbounded => _isUnbounded;
 
     /// <summary>
-    /// Extracts variable values from the final simplex tableau.
-    /// A variable is basic if its column is a unit vector (exactly one 1, rest 0s).
-    /// Basic variable value = RHS of the row where the 1 appears.
-    /// Non-basic variable value = 0.
+    /// After solving, reads variable values from the final tableau. A variable is basic
+    /// (in the solution) if its column is a unit vector (exactly one 1, rest 0s).
+    /// The value is read from the RHS of the row containing the 1. Non-basic variables
+    /// have value 0. The optimal objective value is read from the RHS of the objective row.
     /// </summary>
     private void ExtractSolution()
     {
@@ -186,6 +233,12 @@ public class OptiCoreSimplex
         _result.OptimalResult = optimalValue;
     }
 
+    /// <summary>
+    /// The main simplex iteration loop. Repeats: find pivot column (entering variable),
+    /// find pivot row (leaving variable), perform pivot. Stops when no negative reduced
+    /// costs remain (optimal) or no valid pivot row exists (unbounded). After reaching
+    /// optimality, checks feasibility to ensure no artificial variables remain in the basis.
+    /// </summary>
     private void SolveSimplex()
     {
         int maxIterations = 1000;
@@ -225,9 +278,10 @@ public class OptiCoreSimplex
     }
 
     /// <summary>
-    /// Checks if the solution is feasible by verifying artificial variables
-    /// are not in the basis with non-zero values.
+    /// After optimization, verifies that no artificial variables remain in the basis
+    /// with non-zero values, which would indicate the original problem is infeasible.
     /// </summary>
+    /// <returns>True if the solution is feasible (no artificial variables in basis with non-zero values); false otherwise.</returns>
     private bool CheckFeasibility()
     {
         if (_artificialCount == 0) return true;
@@ -282,10 +336,11 @@ public class OptiCoreSimplex
     }
 
     /// <summary>
-    /// Finds the entering variable by selecting the column with the most negative
-    /// reduced cost in the objective row (for maximization).
-    /// Returns -1 if all reduced costs are non-negative (optimal).
+    /// Selects the entering variable by finding the column with the most negative
+    /// coefficient in the objective row. Returns -1 when all coefficients are
+    /// non-negative, indicating the current solution is optimal.
     /// </summary>
+    /// <returns>The column index of the entering variable, or -1 if optimal.</returns>
     private int GetPivotColumn()
     {
         const double tolerance = -1e-9;
@@ -307,10 +362,12 @@ public class OptiCoreSimplex
     }
 
     /// <summary>
-    /// Finds the leaving variable using the minimum ratio test.
-    /// Only considers rows where the pivot column value is strictly positive.
-    /// Returns -1 if no valid pivot row exists (unbounded).
+    /// Selects the leaving variable using the minimum ratio test (RHS / pivot column value).
+    /// Only considers positive pivot column values to maintain feasibility.
+    /// Returns -1 if no valid pivot row exists, indicating the problem is unbounded.
     /// </summary>
+    /// <param name="pivotColumn">The column index of the entering variable.</param>
+    /// <returns>The row index of the leaving variable, or -1 if unbounded.</returns>
     private int GetPivotRow(int pivotColumn)
     {
         const double tolerance = 1e-9;
@@ -343,8 +400,13 @@ public class OptiCoreSimplex
     }
 
     /// <summary>
-    /// Performs the pivot operation on the simplex tableau.
+    /// Performs the pivot operation on the simplex tableau:
+    /// (1) divides the pivot row by the pivot element to make it 1,
+    /// (2) eliminates the pivot column in all other rows (including the objective row)
+    /// via row operations so that the pivot column becomes a unit vector.
     /// </summary>
+    /// <param name="pivotRow">The row index of the leaving variable.</param>
+    /// <param name="pivotColumn">The column index of the entering variable.</param>
     private void Pivot(int pivotRow, int pivotColumn)
     {
         double pivotElement = SimplexMatrix[pivotRow, pivotColumn];

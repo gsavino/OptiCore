@@ -34,6 +34,13 @@ public class PseudoCostBranching : IBranchingStrategy
     /// <inheritdoc />
     public string Name => "Pseudo Cost";
 
+    /// <summary>
+    /// Uses learned pseudo-costs to estimate the objective degradation for each potential branching
+    /// variable. The score for each variable is computed as the product of estimated down-degradation
+    /// and up-degradation (product rule), weighted by configurable factors. Falls back to
+    /// <see cref="DefaultPseudoCost"/> until enough observations are collected.
+    /// Returns <c>null</c> if all integer variables have integral values.
+    /// </summary>
     /// <inheritdoc />
     public BranchingDecision? SelectBranchingVariable(
         BranchNode node,
@@ -97,7 +104,9 @@ public class PseudoCostBranching : IBranchingStrategy
     }
 
     /// <summary>
-    /// Updates pseudo-costs based on observed branch degradation.
+    /// Records an observed branching outcome. Computes the per-unit degradation (objective change
+    /// divided by the fractional part) and updates the running average for the specified variable
+    /// and direction.
     /// </summary>
     /// <param name="variableName">The variable that was branched on.</param>
     /// <param name="direction">The branch direction ("down" or "up").</param>
@@ -150,7 +159,8 @@ public class PseudoCostBranching : IBranchingStrategy
     }
 
     /// <summary>
-    /// Gets the current pseudo-costs for a variable.
+    /// Returns the average pseudo-costs for a variable. If fewer than <see cref="MinReliableCount"/>
+    /// observations exist for a direction, returns <see cref="DefaultPseudoCost"/> instead.
     /// </summary>
     /// <param name="variableName">The variable name.</param>
     /// <returns>Tuple of (down pseudo-cost, up pseudo-cost).</returns>

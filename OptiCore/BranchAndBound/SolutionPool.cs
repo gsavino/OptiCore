@@ -3,7 +3,9 @@ using OptiCore.Models;
 namespace OptiCore.BranchAndBound;
 
 /// <summary>
-/// Manages a pool of the best integer solutions found during Branch & Bound.
+/// Maintains an ordered pool of the best integer-feasible solutions found during Branch &amp; Bound search.
+/// Solutions are kept sorted by objective value (best first), and the pool is bounded by a configurable
+/// maximum size. The incumbent (best solution) is used for pruning decisions throughout the B&amp;B tree.
 /// </summary>
 public class SolutionPool
 {
@@ -110,6 +112,12 @@ public class SolutionPool
             return bound >= IncumbentValue.Value - tolerance;
     }
 
+    /// <summary>
+    /// Finds the correct insertion position to maintain solutions in sorted order (best objective first).
+    /// For maximization, larger values come first; for minimization, smaller values come first.
+    /// </summary>
+    /// <param name="objectiveValue">The objective value of the solution to insert.</param>
+    /// <returns>The zero-based index where the solution should be inserted.</returns>
     private int FindInsertPosition(double objectiveValue)
     {
         for (int i = 0; i < _solutions.Count; i++)

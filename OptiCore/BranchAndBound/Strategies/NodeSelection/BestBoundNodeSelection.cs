@@ -10,6 +10,11 @@ public class BestBoundNodeSelection : INodeSelectionStrategy
     /// <inheritdoc />
     public string Name => "Best Bound";
 
+    /// <summary>
+    /// Selects the node with the best (tightest) LP relaxation bound. For maximization, picks the
+    /// highest bound; for minimization, picks the lowest. Falls back to the first pending node if
+    /// no nodes have been solved yet.
+    /// </summary>
     /// <inheritdoc />
     public BranchNode? SelectNode(IReadOnlyList<BranchNode> openNodes, double? incumbent, bool isMaximization)
     {

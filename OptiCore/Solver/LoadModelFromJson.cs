@@ -13,9 +13,25 @@ using OptiCore.Models;
 
 namespace OptiCore.Solver;
 
+/// <summary>
+/// Utility class that deserializes a JSON string into a <see cref="LinearModel"/>.
+/// Provides a convenient way to define optimization problems in JSON format and load
+/// them into the solver. Uses System.Text.Json with case-insensitive property matching
+/// and camelCase enum conversion.
+/// </summary>
 public class LoadModelFromJson
 {
+    /// <summary>
+    /// The deserialized <see cref="LinearModel"/>, ready to be passed to the simplex solver.
+    /// </summary>
     public LinearModel ProcessedModel = new LinearModel(ModelKind: ModelType.LinearProgramming, Objective: new ModelObjective(Goal: ObjectiveType.MAX, Coefficients: []), ConstraintsList: [], Variables: []);
+
+    /// <summary>
+    /// Takes a JSON string and deserializes it into a <see cref="LinearModel"/>.
+    /// Throws <see cref="ArgumentException"/> if the JSON is invalid or cannot be parsed.
+    /// </summary>
+    /// <param name="jsonModel">A JSON string representing the linear programming model.</param>
+    /// <exception cref="ArgumentException">Thrown when the JSON string is null, empty, or cannot be deserialized.</exception>
     public LoadModelFromJson(string jsonModel)
     {
         var options = new JsonSerializerOptions
@@ -31,6 +47,10 @@ public class LoadModelFromJson
         ProcessedModel = data;
     }
 
+    /// <summary>
+    /// Returns the deserialized <see cref="LinearModel"/> for use with the solver.
+    /// </summary>
+    /// <returns>The linear model parsed from the JSON input.</returns>
     public LinearModel GetLinearModel()
     {
         return ProcessedModel;

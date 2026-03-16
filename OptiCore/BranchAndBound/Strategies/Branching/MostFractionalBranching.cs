@@ -11,6 +11,12 @@ public class MostFractionalBranching : IBranchingStrategy
     /// <inheritdoc />
     public string Name => "Most Fractional";
 
+    /// <summary>
+    /// Iterates all integer variables, finds those with fractional LP values, and selects the one
+    /// whose fractional part is closest to 0.5 (maximally ambiguous between floor and ceil). Checks
+    /// that branching would create feasible children by respecting variable bounds. Returns
+    /// <c>null</c> if all integer variables have integral values.
+    /// </summary>
     /// <inheritdoc />
     public BranchingDecision? SelectBranchingVariable(
         BranchNode node,

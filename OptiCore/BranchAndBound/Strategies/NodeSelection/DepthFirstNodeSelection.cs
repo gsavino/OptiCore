@@ -10,6 +10,10 @@ public class DepthFirstNodeSelection : INodeSelectionStrategy
     /// <inheritdoc />
     public string Name => "Depth First";
 
+    /// <summary>
+    /// Selects the deepest pending node. Among nodes at the same depth, prefers the most recently
+    /// added (scans from end of list). Falls back to the last node if no pending nodes are found.
+    /// </summary>
     /// <inheritdoc />
     public BranchNode? SelectNode(IReadOnlyList<BranchNode> openNodes, double? incumbent, bool isMaximization)
     {

@@ -25,6 +25,9 @@ public class IntegerProgrammingTests
 
     #region IntegerTerm Tests
 
+    /// <summary>
+    /// Verifies that integer-typed variables accept whole number values and values within tolerance.
+    /// </summary>
     [Fact]
     public void IntegerTerm_IsFeasibleValue_Integer_AcceptsIntegerValues()
     {
@@ -36,6 +39,9 @@ public class IntegerProgrammingTests
         Assert.True(term.IsFeasibleValue(5.0000001)); // Within tolerance
     }
 
+    /// <summary>
+    /// Verifies that integer-typed variables reject clearly fractional values.
+    /// </summary>
     [Fact]
     public void IntegerTerm_IsFeasibleValue_Integer_RejectsFractionalValues()
     {
@@ -46,6 +52,9 @@ public class IntegerProgrammingTests
         Assert.False(term.IsFeasibleValue(2.999));
     }
 
+    /// <summary>
+    /// Verifies that binary variables accept only 0 and 1 (and values within tolerance).
+    /// </summary>
     [Fact]
     public void IntegerTerm_IsFeasibleValue_Binary_AcceptsZeroAndOne()
     {
@@ -56,6 +65,9 @@ public class IntegerProgrammingTests
         Assert.True(term.IsFeasibleValue(0.0000001)); // Within tolerance
     }
 
+    /// <summary>
+    /// Verifies that binary variables reject values outside [0,1] and fractional values.
+    /// </summary>
     [Fact]
     public void IntegerTerm_IsFeasibleValue_Binary_RejectsOutOfBounds()
     {
@@ -304,6 +316,10 @@ public class IntegerProgrammingTests
 
     #region Branch & Bound Integration Tests
 
+    /// <summary>
+    /// Integration test: solves a simple ILP (max x1+x2 s.t. x1+x2&lt;=3.5)
+    /// and verifies the solver completes without errors.
+    /// </summary>
     [Fact]
     public void BranchBound_SolvesSimpleILP()
     {
@@ -346,6 +362,9 @@ public class IntegerProgrammingTests
                     result.Status == BranchBoundStatus.TimeLimitReached);
     }
 
+    /// <summary>
+    /// Integration test: solves a knapsack-style ILP with two constraints and verifies completion.
+    /// </summary>
     [Fact]
     public void BranchBound_SolvesKnapsackProblem()
     {
@@ -399,6 +418,10 @@ public class IntegerProgrammingTests
                     result.Status == BranchBoundStatus.TimeLimitReached);
     }
 
+    /// <summary>
+    /// Tests that when the LP relaxation already has integer values, the solver recognizes
+    /// optimality at the root node without branching.
+    /// </summary>
     [Fact]
     public void BranchBound_HandlesAlreadyIntegralSolution()
     {
@@ -438,6 +461,9 @@ public class IntegerProgrammingTests
 
     #region Branch & Cut Integration Tests
 
+    /// <summary>
+    /// Integration test: solves an ILP using the Branch and Cut solver with Gomory cut generation enabled.
+    /// </summary>
     [Fact]
     public void BranchAndCut_SolvesWithCuts()
     {

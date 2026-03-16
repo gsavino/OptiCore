@@ -4,8 +4,16 @@ using OptiCore.Enums;
 namespace OptiCore.Models;
 
 /// <summary>
-/// Represents a Linear Programming model with objective function and constraints.
+/// Central model representation for a Linear Programming problem. Combines the model type (LP/ILP/MILP),
+/// objective function, constraints, and variable declarations. The <see cref="GetMatrix"/> method converts
+/// this declarative model into a simplex tableau matrix used by the solver. The matrix includes slack
+/// variables for &lt;= constraints, surplus + artificial variables for &gt;= constraints, artificial
+/// variables for = constraints, and uses the Big-M method to handle artificial variables.
 /// </summary>
+/// <param name="ModelKind">The type of model: LP, ILP, or MILP.</param>
+/// <param name="Objective">The objective function defining the optimization goal and variable coefficients.</param>
+/// <param name="ConstraintsList">The list of linear constraints in the model.</param>
+/// <param name="Variables">The list of decision variables declared in the model.</param>
 public record LinearModel(
     ModelType ModelKind,
     ModelObjective Objective,
@@ -13,9 +21,23 @@ public record LinearModel(
     List<Term> Variables
 )
 {
+    /// <summary>
+    /// Returns the count of decision variables in the model.
+    /// </summary>
+    /// <returns>The number of decision variables.</returns>
     public int GetNumberOfVariables() => Variables.Count;
+
+    /// <summary>
+    /// Returns the count of constraints in the model.
+    /// </summary>
+    /// <returns>The number of constraints.</returns>
     public int GetNumberOfConstrains() => ConstraintsList.Count;
 
+    /// <summary>
+    /// Checks whether a variable name exists in the model's variable list using case-insensitive comparison.
+    /// </summary>
+    /// <param name="variableName">The variable name to search for.</param>
+    /// <returns><c>true</c> if the variable exists in the model; otherwise, <c>false</c>.</returns>
     public bool ValidateVariable(string variableName) =>
         Variables.Any(x => x.TermName.Equals(variableName, StringComparison.OrdinalIgnoreCase));
 

@@ -23,7 +23,14 @@ public class GomoryMixedIntegerCutGenerator : GomoryCutGeneratorBase
     /// <inheritdoc />
     public override int Priority => 90;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Generates Gomory Mixed-Integer (GMI) cuts from the current LP relaxation.
+    /// Similar to fractional cuts but handles continuous and integer variables differently,
+    /// making it valid for mixed-integer programs.
+    /// </summary>
+    /// <param name="context">The cut generation context containing the current simplex tableau.</param>
+    /// <param name="maxCuts">Maximum number of cuts to generate.</param>
+    /// <returns>A collection of valid GMI cuts.</returns>
     public override IEnumerable<Cut> GenerateCuts(CutGenerationContext context, int maxCuts = 10)
     {
         var cuts = new List<Cut>();
@@ -49,6 +56,15 @@ public class GomoryMixedIntegerCutGenerator : GomoryCutGeneratorBase
         return cuts;
     }
 
+    /// <summary>
+    /// Generates a single GMI cut from a tableau row. The coefficient computation depends
+    /// on whether each variable is integer or continuous: integer variables use fractional
+    /// parts with a complementary formula for f_ij > f_i0, while continuous variables use
+    /// the raw coefficient with a scaling factor for negative values.
+    /// </summary>
+    /// <param name="context">The cut generation context containing the current simplex tableau.</param>
+    /// <param name="row">The tableau row index to generate the cut from.</param>
+    /// <returns>A valid GMI cut, or null if the row does not yield a useful cut.</returns>
     private Cut? GenerateCutFromRow(CutGenerationContext context, int row)
     {
         double b_i = context.GetRhs(row);

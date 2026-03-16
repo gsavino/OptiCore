@@ -19,6 +19,12 @@ public class BestEstimateNodeSelection : INodeSelectionStrategy
     /// <inheritdoc />
     public string Name => "Best Estimate";
 
+    /// <summary>
+    /// Computes a weighted score for each solved node combining its normalized LP bound quality and
+    /// its depth in the tree. Allows tuning the trade-off between proving optimality (bound) and
+    /// finding feasible solutions quickly (depth) via the <see cref="BoundWeight"/> parameter.
+    /// Falls back to the first pending node if no nodes have LP bounds yet.
+    /// </summary>
     /// <inheritdoc />
     public BranchNode? SelectNode(IReadOnlyList<BranchNode> openNodes, double? incumbent, bool isMaximization)
     {

@@ -25,6 +25,11 @@ using OptiCore.Enums;
 //         Assert.Equal(expected, result);
 //     }
 //}
+/// <summary>
+/// Unit and integration tests for the simplex solver. Tests JSON model deserialization,
+/// matrix construction, and full LP solving. Uses a sample LP: Maximize 3x1 + 5x2
+/// subject to 2x1 + 3x2 &lt;= 12 and -x1 + x2 &lt;= 3.
+/// </summary>
 public class SimplexTests
 {
   private readonly ITestOutputHelper _output;
@@ -33,6 +38,10 @@ public class SimplexTests
   {
     _output = output;
   }
+  /// <summary>
+  /// Verifies that LoadModelFromJson correctly deserializes a JSON LP model,
+  /// including objective type, coefficients, constraints, and variables.
+  /// </summary>
   [Fact]
   public void Simplex_ShouldDeserializeModel_FromJson()
   {
@@ -167,6 +176,10 @@ public class SimplexTests
             { ""TermName"": ""x2"", ""Coefficient"": 0.0 }
           ]
         }";
+  /// <summary>
+  /// Verifies that the simplex tableau matrix has correct dimensions:
+  /// (constraints+1) rows and (variables + slacks + RHS) columns.
+  /// </summary>
   [Fact]
   public void LoadModel_And_GetMatrix()
   {
@@ -259,6 +272,10 @@ public class SimplexTests
   //   Assert.NotEqual(0.0, simplex.SimplexMatrix[0, 0]); // cambió algo
   // }
 
+  /// <summary>
+  /// End-to-end test: loads a model from JSON, solves it with the simplex method,
+  /// and verifies the optimal objective value is 19.8.
+  /// </summary>
   [Fact]
   public void Simplex_FullSolve()
   {

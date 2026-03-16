@@ -4,7 +4,11 @@ using OptiCore.Models;
 namespace OptiCore.Cuts.Generators;
 
 /// <summary>
-/// Base class for Gomory cut generators with shared functionality.
+/// Abstract base class for Gomory cut generators. Provides shared functionality for
+/// identifying fractional basic variables in the simplex tableau, creating cut objects
+/// from computed coefficients, and validating that cuts are violated by the current
+/// solution. Subclasses implement the specific coefficient computation formulas for
+/// pure integer vs. mixed-integer programs.
 /// </summary>
 public abstract class GomoryCutGeneratorBase : ICutGenerator
 {
@@ -37,7 +41,15 @@ public abstract class GomoryCutGeneratorBase : ICutGenerator
     /// <inheritdoc />
     public abstract IEnumerable<Cut> GenerateCuts(CutGenerationContext context, int maxCuts = 10);
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Controls cut generation frequency based on tree depth and node count.
+    /// Generates at every node for depth &lt;= 5, every 5th node for depth &lt;= 10,
+    /// and every 20th node deeper. This tapering prevents excessive cut generation
+    /// deep in the tree.
+    /// </summary>
+    /// <param name="nodeDepth">The depth of the current node in the branch-and-bound tree.</param>
+    /// <param name="nodeCount">The total number of nodes explored so far.</param>
+    /// <returns>True if cuts should be generated at the current node.</returns>
     public virtual bool ShouldGenerateAtNode(int nodeDepth, int nodeCount)
     {
         // Generate at root and early nodes, then less frequently
@@ -82,7 +94,9 @@ public abstract class GomoryCutGeneratorBase : ICutGenerator
     }
 
     /// <summary>
-    /// Creates a cut from the computed coefficients.
+    /// Assembles a <see cref="Cut"/> object from computed coefficients. Filters out near-zero
+    /// coefficients, calculates the cut's efficacy (violation at the current solution),
+    /// and rejects cuts that are not violated.
     /// </summary>
     protected Cut? CreateCut(
         string cutId,

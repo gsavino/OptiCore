@@ -11,7 +11,11 @@ using OptiCore.Models;
 namespace OptiCore.Solver;
 
 /// <summary>
-/// Branch & Cut solver combining Branch & Bound with cutting planes.
+/// Branch &amp; Cut solver that combines the Branch &amp; Bound algorithm with cutting plane
+/// generation (Gomory cuts) for solving Integer and Mixed-Integer Linear Programming problems.
+/// At each node, it solves the LP relaxation, generates Gomory cuts to tighten the formulation,
+/// and branches on fractional variables. This hybrid approach typically requires fewer nodes
+/// than pure Branch &amp; Bound.
 /// </summary>
 public class BranchAndCutSolver
 {
@@ -65,9 +69,12 @@ public class BranchAndCutSolver
     }
 
     /// <summary>
-    /// Solves the integer programming problem using Branch & Cut.
+    /// Main entry point. Initializes the root node and iterates the Branch &amp; Cut loop:
+    /// select a node, solve its LP relaxation with cut generation, check integrality, and
+    /// branch if needed. Terminates when the tree is exhausted, optimality gap is met, or
+    /// resource limits (node count, time) are reached.
     /// </summary>
-    /// <returns>The result of the solve.</returns>
+    /// <returns>A <see cref="BranchBoundResult"/> containing the solution status, optimal values, and solve statistics.</returns>
     public BranchBoundResult Solve()
     {
         _stopwatch = Stopwatch.StartNew();
@@ -128,6 +135,13 @@ public class BranchAndCutSolver
         }
     }
 
+    /// <summary>
+    /// Processes a single Branch &amp; Bound node: solves the LP relaxation, iteratively generates
+    /// and adds Gomory cuts to tighten the bound, checks for integer feasibility, and creates
+    /// child nodes if branching is needed. The cut loop continues until no improvement is made
+    /// or the maximum rounds are reached.
+    /// </summary>
+    /// <param name="node">The branch node to process.</param>
     private void ProcessNodeWithCuts(BranchNode node)
     {
         _nodesExplored++;
@@ -244,6 +258,15 @@ public class BranchAndCutSolver
         CreateChildNodes(node, finalBranchDecision);
     }
 
+    /// <summary>
+    /// Builds the context object needed by cut generators, including the simplex tableau,
+    /// variable information, integer variable indices, and the current LP solution.
+    /// </summary>
+    /// <param name="model">The current linear model (with any added cuts).</param>
+    /// <param name="lpResult">The LP relaxation solution.</param>
+    /// <param name="objectiveValue">The current LP objective value.</param>
+    /// <param name="round">The current cut generation round number.</param>
+    /// <returns>A <see cref="CutGenerationContext"/> for use by cut generators.</returns>
     private CutGenerationContext CreateCutContext(
         LinearModel model,
         ModelResult lpResult,
@@ -279,6 +302,13 @@ public class BranchAndCutSolver
         );
     }
 
+    /// <summary>
+    /// Creates two child nodes by branching on a fractional variable:
+    /// a 'down' branch (x &lt;= floor(value)) and an 'up' branch (x &gt;= ceil(value)).
+    /// Both child nodes are added to the open nodes list for future processing.
+    /// </summary>
+    /// <param name="parent">The parent node being branched.</param>
+    /// <param name="decision">The branching decision containing the variable and split values.</param>
     private void CreateChildNodes(BranchNode parent, BranchingDecision decision)
     {
         // Down branch: x <= floor(value)
@@ -303,6 +333,12 @@ public class BranchAndCutSolver
         _openNodes.Add(upNode);
     }
 
+    /// <summary>
+    /// Checks if the optimality gap between the best bound from open nodes and the
+    /// incumbent solution is within the configured tolerance. Uses relative gap when
+    /// the incumbent is large enough, and absolute gap otherwise.
+    /// </summary>
+    /// <returns>True if the gap is satisfied and the solver can terminate.</returns>
     private bool IsGapSatisfied()
     {
         if (!_solutionPool.IncumbentValue.HasValue)

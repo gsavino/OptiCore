@@ -21,7 +21,15 @@ public class GomoryFractionalCutGenerator : GomoryCutGeneratorBase
     /// <inheritdoc />
     public override int Priority => 100;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Generates Gomory fractional cuts from the current LP relaxation.
+    /// Finds rows where an integer-constrained basic variable has a fractional value,
+    /// prioritizes those closest to 0.5, and generates cuts by taking the fractional
+    /// part of each tableau coefficient.
+    /// </summary>
+    /// <param name="context">The cut generation context containing the current simplex tableau.</param>
+    /// <param name="maxCuts">Maximum number of cuts to generate.</param>
+    /// <returns>A collection of valid Gomory fractional cuts.</returns>
     public override IEnumerable<Cut> GenerateCuts(CutGenerationContext context, int maxCuts = 10)
     {
         var cuts = new List<Cut>();
@@ -47,6 +55,15 @@ public class GomoryFractionalCutGenerator : GomoryCutGeneratorBase
         return cuts;
     }
 
+    /// <summary>
+    /// Generates a single Gomory fractional cut from a specific tableau row.
+    /// The cut formula is: sum(frac(a_ij) * x_j) >= frac(b_i), where frac() denotes
+    /// the fractional part. This cut is valid for pure integer programs where all
+    /// variables are integers.
+    /// </summary>
+    /// <param name="context">The cut generation context containing the current simplex tableau.</param>
+    /// <param name="row">The tableau row index to generate the cut from.</param>
+    /// <returns>A valid cut, or null if the row does not yield a useful cut.</returns>
     private Cut? GenerateCutFromRow(CutGenerationContext context, int row)
     {
         double b_i = context.GetRhs(row);
