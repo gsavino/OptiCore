@@ -32,6 +32,7 @@ public class BranchBoundSolver
     private int _nodesExplored = 0;
     private int _nodesPrunedByBound = 0;
     private int _nodesFathomedInfeasible = 0;
+    private int _nodesNotConverged = 0;
     private int _integerSolutionsFound = 0;
     private int _maxDepthReached = 0;
     private Stopwatch _stopwatch = null!;
@@ -44,6 +45,10 @@ public class BranchBoundSolver
     /// <param name="options">Solver options (if null, uses defaults).</param>
     public BranchBoundSolver(LinearModel model, IReadOnlyList<IntegerTerm>? integerVariables = null, BranchBoundOptions? options = null)
     {
+        // Surface modeling errors here: inside Solve() the per-node catch would swallow
+        // them and misreport the model as infeasible.
+        model.ValidateVariableReferences();
+
         _originalModel = model;
         _options = options ?? BranchBoundOptions.Default;
         _isMaximization = model.Objective.Goal == ObjectiveType.MAX;
@@ -91,7 +96,11 @@ public class BranchBoundSolver
                 // Check if gap tolerance is met
                 if (IsGapSatisfied())
                 {
-                    return CreateOptimalResult();
+                    // Abandoned (non-converged) subtrees are not covered by the gap
+                    // computation, so optimality cannot be claimed if any exist.
+                    return _nodesNotConverged > 0
+                        ? CreateTerminationResult(BranchBoundStatus.Feasible)
+                        : CreateOptimalResult();
                 }
 
                 // Select next node to process
@@ -113,7 +122,17 @@ public class BranchBoundSolver
             // B&B tree exhausted
             if (_solutionPool.Incumbent != null)
             {
-                return CreateOptimalResult();
+                return _nodesNotConverged > 0
+                    ? CreateTerminationResult(BranchBoundStatus.Feasible)
+                    : CreateOptimalResult();
+            }
+            else if (_nodesNotConverged > 0)
+            {
+                // Some subtrees were abandoned because their LP relaxation did not
+                // converge; the problem was not proven infeasible.
+                return BranchBoundResult.CreateError(
+                    $"LP relaxation failed to converge on {_nodesNotConverged} node(s); feasibility could not be determined.",
+                    GetStatistics());
             }
             else
             {
@@ -142,15 +161,24 @@ public class BranchBoundSolver
 
         // Solve LP relaxation
         ModelResult lpResult;
+        OptiCoreSimplex simplex;
         try
         {
-            var simplex = new OptiCoreSimplex(boundedModel);
+            simplex = new OptiCoreSimplex(boundedModel);
             lpResult = simplex.GetOptimalValues();
         }
         catch
         {
             // LP is infeasible
             _nodesFathomedInfeasible++;
+            return;
+        }
+
+        if (simplex.IsNotConverged)
+        {
+            // The LP solve failed; this subtree was NOT proven infeasible, so it cannot
+            // be fathomed as such. Record it so the final status reflects the uncertainty.
+            _nodesNotConverged++;
             return;
         }
 

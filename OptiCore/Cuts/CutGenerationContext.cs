@@ -58,6 +58,13 @@ public class CutGenerationContext
     public int Round { get; }
 
     /// <summary>
+    /// For each constraint row, the column index of its basic variable, as tracked by the
+    /// simplex solver. When available it is the source of truth for basicness; column-shape
+    /// inference is only a fallback because two columns can hold identical unit vectors.
+    /// </summary>
+    public IReadOnlyList<int>? BasisVariables { get; }
+
+    /// <summary>
     /// Creates a new cut generation context.
     /// </summary>
     public CutGenerationContext(
@@ -68,7 +75,8 @@ public class CutGenerationContext
         int numberOfOriginalVariables,
         double objectiveValue,
         int round = 0,
-        double integralityTolerance = 1e-6)
+        double integralityTolerance = 1e-6,
+        IReadOnlyList<int>? basisVariables = null)
     {
         SimplexMatrix = simplexMatrix;
         VariableNames = variableNames;
@@ -80,6 +88,7 @@ public class CutGenerationContext
         ObjectiveValue = objectiveValue;
         Round = round;
         IntegralityTolerance = integralityTolerance;
+        BasisVariables = basisVariables;
     }
 
     /// <summary>
@@ -148,6 +157,11 @@ public class CutGenerationContext
     /// </summary>
     public int? FindBasicVariable(int row)
     {
+        if (BasisVariables != null)
+        {
+            return row < BasisVariables.Count ? BasisVariables[row] : null;
+        }
+
         for (int col = 0; col < NumberOfColumns - 1; col++)
         {
             double coeff = SimplexMatrix[row, col];

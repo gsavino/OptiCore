@@ -42,6 +42,84 @@ public record LinearModel(
         Variables.Any(x => x.TermName.Equals(variableName, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
+    /// Verifies that every term in the objective and in each constraint references a declared
+    /// model variable. Without this check, <see cref="ConstraintBase.GetCoefficient"/> silently
+    /// returns 0 for unknown names, so a typo turns a real constraint into a vacuous one.
+    /// </summary>
+    /// <exception cref="ArgumentException">Thrown when one or more terms reference unknown variables.</exception>
+    public void ValidateVariableReferences()
+    {
+        var known = new HashSet<string>(
+            Variables.Select(v => v.TermName), StringComparer.OrdinalIgnoreCase);
+
+        var unknown = new List<string>();
+
+        foreach (var term in Objective.Coefficients)
+        {
+            if (!known.Contains(term.TermName))
+            {
+                unknown.Add($"'{term.TermName}' (objective)");
+            }
+        }
+
+        foreach (var constraint in ConstraintsList)
+        {
+            foreach (var term in constraint.Coefficients)
+            {
+                if (!known.Contains(term.TermName))
+                {
+                    unknown.Add($"'{term.TermName}' (constraint '{constraint.ConstraintName}')");
+                }
+            }
+        }
+
+        if (unknown.Count > 0)
+        {
+            throw new ArgumentException(
+                $"Unknown variable reference(s): {string.Join(", ", unknown.Distinct())}. " +
+                "Every term must reference a variable declared in the model's Variables list.");
+        }
+    }
+
+    /// <summary>
+    /// Returns the constraint list normalized for the simplex tableau: any constraint with a
+    /// negative RHS is multiplied by -1 and its operator flipped (&lt;= becomes &gt;= and vice
+    /// versa; = stays =). The simplex assumes a feasible starting basis with non-negative RHS,
+    /// so both <see cref="GetMatrix"/> and the solver's basis bookkeeping must work from this
+    /// list, never from the raw <see cref="ConstraintsList"/>.
+    /// </summary>
+    public List<Constraint> GetNormalizedConstraints()
+    {
+        var normalized = new List<Constraint>(ConstraintsList.Count);
+
+        foreach (var constraint in ConstraintsList)
+        {
+            if (constraint.Rhs >= 0)
+            {
+                normalized.Add(constraint);
+                continue;
+            }
+
+            string op = constraint.Operator.Trim();
+            string flippedOp = op switch
+            {
+                "<=" or "≤" => ">=",
+                ">=" or "≥" => "<=",
+                _ => op
+            };
+
+            var negatedCoefficients = constraint.Coefficients
+                .Select(t => new Term(t.TermName, -t.Coefficient))
+                .ToList();
+
+            normalized.Add(new Constraint(
+                constraint.ConstraintName, negatedCoefficients, flippedOp, -constraint.Rhs));
+        }
+
+        return normalized;
+    }
+
+    /// <summary>
     /// Builds the simplex tableau matrix.
     ///
     /// Matrix structure:
@@ -55,14 +133,18 @@ public record LinearModel(
     /// </summary>
     public double[,] GetMatrix()
     {
+        ValidateVariableReferences();
+
         int numberOfVariables = GetNumberOfVariables();
         int numberOfConstraints = GetNumberOfConstrains();
+
+        var normalizedConstraints = GetNormalizedConstraints();
 
         // Count slack and artificial variables needed
         int slackCount = 0;
         int artificialCount = 0;
 
-        foreach (var constraint in ConstraintsList)
+        foreach (var constraint in normalizedConstraints)
         {
             string op = constraint.Operator.Trim();
             if (op == "<=" || op == "≤")
@@ -86,8 +168,16 @@ public record LinearModel(
 
         double[,] matrix = new double[rows, cols];
 
-        // Big-M value for artificial variable penalties
-        const double BigM = 1e6;
+        // Big-M value for artificial variable penalties. M must dominate every objective
+        // coefficient by a wide margin or artificials cannot be driven out of the basis
+        // and feasible models are misreported as infeasible - so scale it with the data
+        // instead of hardcoding it.
+        double maxAbsObjectiveCoeff = 1.0;
+        foreach (var term in Objective.Coefficients)
+        {
+            maxAbsObjectiveCoeff = Math.Max(maxAbsObjectiveCoeff, Math.Abs(term.Coefficient));
+        }
+        double BigM = Math.Max(1e6, 1e4 * maxAbsObjectiveCoeff);
 
         int slackIndex = numberOfVariables;
         int artificialIndex = numberOfVariables + slackCount;
@@ -95,7 +185,7 @@ public record LinearModel(
         // Build constraint rows
         for (int i = 0; i < numberOfConstraints; i++)
         {
-            var constraint = ConstraintsList[i];
+            var constraint = normalizedConstraints[i];
             string op = constraint.Operator.Trim();
 
             // Add decision variable coefficients
@@ -182,7 +272,7 @@ public record LinearModel(
 
         for (int i = 0; i < numberOfConstraints; i++)
         {
-            string op = ConstraintsList[i].Operator.Trim();
+            string op = normalizedConstraints[i].Operator.Trim();
 
             if (op == ">=" || op == "≥" || op == "=" || op == "==")
             {

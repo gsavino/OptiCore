@@ -33,6 +33,7 @@ public class BranchAndCutSolver
     private int _nodesExplored = 0;
     private int _nodesPrunedByBound = 0;
     private int _nodesFathomedInfeasible = 0;
+    private int _nodesNotConverged = 0;
     private int _integerSolutionsFound = 0;
     private int _maxDepthReached = 0;
     private Stopwatch _stopwatch = null!;
@@ -48,6 +49,10 @@ public class BranchAndCutSolver
         IReadOnlyList<IntegerTerm>? integerVariables = null,
         BranchBoundOptions? options = null)
     {
+        // Surface modeling errors here: inside Solve() the per-node catch would swallow
+        // them and misreport the model as infeasible.
+        model.ValidateVariableReferences();
+
         _originalModel = model;
         _options = options ?? new BranchBoundOptions { EnableCuts = true };
         _isMaximization = model.Objective.Goal == ObjectiveType.MAX;
@@ -102,7 +107,11 @@ public class BranchAndCutSolver
 
                 if (IsGapSatisfied())
                 {
-                    return CreateOptimalResult();
+                    // Abandoned (non-converged) subtrees are not covered by the gap
+                    // computation, so optimality cannot be claimed if any exist.
+                    return _nodesNotConverged > 0
+                        ? CreateTerminationResult(BranchBoundStatus.Feasible)
+                        : CreateOptimalResult();
                 }
 
                 // Select next node
@@ -122,7 +131,17 @@ public class BranchAndCutSolver
             // Tree exhausted
             if (_solutionPool.Incumbent != null)
             {
-                return CreateOptimalResult();
+                return _nodesNotConverged > 0
+                    ? CreateTerminationResult(BranchBoundStatus.Feasible)
+                    : CreateOptimalResult();
+            }
+            else if (_nodesNotConverged > 0)
+            {
+                // Some subtrees were abandoned because their LP relaxation did not
+                // converge; the problem was not proven infeasible.
+                return BranchBoundResult.CreateError(
+                    $"LP relaxation failed to converge on {_nodesNotConverged} node(s); feasibility could not be determined.",
+                    GetStatistics());
             }
             else
             {
@@ -162,15 +181,24 @@ public class BranchAndCutSolver
             // Build and solve LP
             var lpModel = workingModel.BuildLinearModel();
 
+            OptiCoreSimplex simplex;
             try
             {
-                var simplex = new OptiCoreSimplex(lpModel);
+                simplex = new OptiCoreSimplex(lpModel);
                 lpResult = simplex.GetOptimalValues();
                 lpObjective = lpResult.OptimalResult;
             }
             catch
             {
                 _nodesFathomedInfeasible++;
+                return;
+            }
+
+            if (simplex.IsNotConverged)
+            {
+                // The LP solve failed; this subtree was NOT proven infeasible, so it
+                // cannot be fathomed as such. Record it for the final status.
+                _nodesNotConverged++;
                 return;
             }
 
@@ -215,7 +243,7 @@ public class BranchAndCutSolver
             if (!_options.EnableCuts)
                 break;
 
-            var cutContext = CreateCutContext(lpModel, lpResult, lpObjective, cutRounds);
+            var cutContext = CreateCutContext(lpModel, simplex, lpResult, lpObjective, cutRounds);
             var newCuts = _cutManager.GenerateCuts(cutContext, node.Depth, _nodesExplored);
 
             if (newCuts.Count == 0)
@@ -263,12 +291,14 @@ public class BranchAndCutSolver
     /// variable information, integer variable indices, and the current LP solution.
     /// </summary>
     /// <param name="model">The current linear model (with any added cuts).</param>
+    /// <param name="simplex">The solver that produced the LP solution; supplies the solved tableau and the basis.</param>
     /// <param name="lpResult">The LP relaxation solution.</param>
     /// <param name="objectiveValue">The current LP objective value.</param>
     /// <param name="round">The current cut generation round number.</param>
     /// <returns>A <see cref="CutGenerationContext"/> for use by cut generators.</returns>
     private CutGenerationContext CreateCutContext(
         LinearModel model,
+        OptiCoreSimplex simplex,
         ModelResult lpResult,
         double objectiveValue,
         int round)
@@ -287,18 +317,18 @@ public class BranchAndCutSolver
             }
         }
 
-        // Get the simplex matrix
-        var matrix = model.GetMatrix();
-
+        // Use the SOLVED tableau and the basis tracked by the solver - rebuilding the
+        // matrix from the model would hand cut generators the initial, unsolved tableau.
         return new CutGenerationContext(
-            simplexMatrix: matrix,
+            simplexMatrix: simplex.SimplexMatrix,
             variableNames: variableNames,
             integerVariableIndices: integerIndices,
             currentSolution: lpResult.Terms,
             numberOfOriginalVariables: model.GetNumberOfVariables(),
             objectiveValue: objectiveValue,
             round: round,
-            integralityTolerance: _options.IntegralityTolerance
+            integralityTolerance: _options.IntegralityTolerance,
+            basisVariables: simplex.BasisVariables
         );
     }
 
