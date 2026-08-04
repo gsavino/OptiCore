@@ -6,6 +6,18 @@ A lightweight, open-source optimization engine for solving Linear Programming (L
 
 OptiCore provides a native .NET solution for mathematical optimization without external dependencies on commercial solvers. It implements the Simplex algorithm for continuous optimization and Branch & Bound / Branch & Cut algorithms for integer programming problems.
 
+## What's New in v1.3.0
+
+Correctness-focused release of the simplex core and the integer solvers:
+
+- **Explicit basis tracking** — fixes false `Infeasible` reports on models where a variable appears in a single `>=` or `=` constraint (e.g. penalized shortage/slack variables).
+- **Non-convergence signaling** — the iteration limit scales with problem size; when the solver cannot converge it reports it via `IsNotConverged` and returns `NaN` instead of a half-solved result.
+- **Negative RHS support** — constraints with a negative right-hand side are normalized automatically; previously they produced invalid solutions.
+- **Data-scaled Big-M** — fixes false infeasibility on models with objective coefficients of 1e6 or larger.
+- **Honest Branch & Bound statuses** — non-converged LP relaxations are no longer fathomed as infeasible; results report `Error` or `Feasible` instead of a wrong `Infeasible`/`Optimal`.
+- **Cut generation fixes** — Gomory cuts now read the solved tableau and the solver's explicit basis.
+- **Model validation** — referencing an undeclared variable in a constraint or the objective now throws `ArgumentException` instead of silently treating it as a zero coefficient.
+
 ## Features
 
 - **Linear Programming (LP)** - Continuous optimization using the Simplex method
@@ -64,7 +76,13 @@ var model = new LinearModel(
 
 var simplex = new OptiCoreSimplex(model);
 var result = simplex.GetOptimalValues();
-Console.WriteLine(result);
+
+// Always check the solve status before consuming the result:
+// a NaN objective means there is no usable solution.
+if (simplex.IsInfeasible)       { /* no solution satisfies all constraints */ }
+else if (simplex.IsUnbounded)   { /* objective can grow without limit */ }
+else if (simplex.IsNotConverged){ /* iteration budget exhausted, no optimum */ }
+else Console.WriteLine(result);   // optimal
 ```
 
 ### Solving an Integer Program
@@ -232,8 +250,10 @@ var constraints = new List<Constraint> {
 var model = new LinearModel(ModelKind: ModelType.LinearProgramming,
     Objective: objective, ConstraintsList: constraints, Variables: variables);
 
-var result = new OptiCoreSimplex(model).GetOptimalValues();
+var simplex = new OptiCoreSimplex(model);
+var result = simplex.GetOptimalValues();
 // result.OptimalResult = objective value, result.Terms = variable values
+// Check simplex.IsInfeasible / IsUnbounded / IsNotConverged first: NaN result = no usable solution
 ```
 
 ## Quick Reference: Solving MILP with Integer and Binary Variables
@@ -285,6 +305,8 @@ Branching: `MostFractionalBranching`, `PseudoCostBranching`
 - Using `OptiCoreSimplex` for integer problems — use `BranchBoundSolver` instead
 - Forgetting to define `IntegerTerm` list separately from model `Variables`
 - Using `ModelType.LinearProgramming` when variables are integer/binary — use `MixedIntegerLinearProgramming` or `IntegerLinearProgramming`
+- Consuming a result without checking status — NaN `OptimalResult` means infeasible or not converged, never a valid optimum
+- Referencing a variable name not declared in `Variables` — throws `ArgumentException` (since v1.3.0)
 
 ## Key Namespaces
 
@@ -309,6 +331,14 @@ Claude should use `IntegerTerm` with `VariableType.Binary` and `BranchBoundSolve
 - **Description field** — Controls when Claude loads the skill. Add domain-specific keywords relevant to your projects (e.g., "scheduling", "routing", "assignment problems").
 - **Keep it concise** — Skills load into Claude's context window. Focus on API patterns and common mistakes, not explanations.
 - **Update as OptiCore evolves** — When new solvers or features are added, update the skill to keep Claude current.
+
+## Performance and Practical Limits
+
+There are no hardcoded size limits — the practical limit is solve time (dense tableau, roughly cubic growth). Reference timings for dense random LPs (n variables × n constraints): 100 × 100 in ~25 ms, 400 × 400 in ~3.5 s, 800 × 800 in ~60 s.
+
+- **LP:** up to ~200–300 variables stays interactive (&lt; 1 s); ~800–1,500 is batch territory (minutes).
+- **ILP/MILP:** ~30–40 integer variables is the comfortable range with `BranchBoundOptions.Quick`; worst-case cost grows exponentially with the number of integer variables.
+- **Numerics:** objective coefficients up to ~1e8 are safe; beyond ~1e10 `double` precision erodes — rescale the model instead.
 
 ## Requirements
 

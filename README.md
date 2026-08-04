@@ -1,7 +1,8 @@
 # OptiCore - nuget.org
-# See CLaude Code Skills down in this file!
 
 A lightweight, open-source optimization engine for solving **Linear Programming (LP)**, **Integer Linear Programming (ILP)**, and **Mixed-Integer Linear Programming (MILP)** problems in .NET.
+
+> Using Claude Code? See the [Claude Code skill setup guide](OptiCore/README.md#creating-a-claude-code-skill-for-opticore) in the package README.
 
 ## Overview
 
@@ -14,6 +15,18 @@ OptiCore provides a native .NET solution for mathematical optimization without e
 | **Linear Programming (LP)** | Continuous (real) variables | Simplex |
 | **Integer Linear Programming (ILP)** | Integer and/or binary variables | Branch & Bound |
 | **Mixed-Integer Linear Programming (MILP)** | Mix of continuous, integer, and binary variables | Branch & Bound / Branch & Cut |
+
+## What's New in v1.3.0
+
+Correctness-focused release of the simplex core and the integer solvers:
+
+- **Explicit basis tracking** — the simplex tracks its basis directly instead of inferring it from tableau column shapes, fixing false `Infeasible` reports on models where a variable appears in a single `>=` or `=` constraint (e.g. penalized shortage/slack variables).
+- **Non-convergence signaling** — the iteration limit now scales with problem size, and when the solver cannot converge (e.g. cycling) it reports it via `IsNotConverged` and returns `NaN` instead of a half-solved tableau presented as optimal.
+- **Negative RHS support** — constraints with a negative right-hand side (e.g. `x1 - x2 <= -2`) are normalized automatically; previously they produced invalid solutions.
+- **Data-scaled Big-M** — the Big-M penalty scales with the objective coefficients, fixing false infeasibility on models with coefficients of 1e6 or larger.
+- **Honest Branch & Bound statuses** — nodes whose LP relaxation fails to converge are no longer fathomed as infeasible; the result reports `Error` (no solution found) or `Feasible` (optimality not proven) instead of a wrong `Infeasible`/`Optimal`.
+- **Cut generation fixes** — Gomory cut generators now read the solved tableau and the solver's explicit basis instead of rebuilding the initial one.
+- **Model validation** — constraints or objectives referencing undeclared variables now throw `ArgumentException` instead of silently treating them as zero coefficients. This is a breaking change for models with typos — which is the point.
 
 ## Features
 
@@ -88,6 +101,29 @@ var simplex = new OptiCoreSimplex(model);
 var result = simplex.GetOptimalValues();
 Console.WriteLine(result);
 ```
+
+**Checking the solve status:** always inspect the solver flags before consuming the result — a `NaN` objective means there is no usable solution:
+
+```csharp
+if (simplex.IsInfeasible)
+{
+    // No solution satisfies all constraints (result is NaN)
+}
+else if (simplex.IsUnbounded)
+{
+    // Objective can grow without limit (result is +/- Infinity)
+}
+else if (simplex.IsNotConverged)
+{
+    // Iteration budget exhausted without reaching optimality (result is NaN)
+}
+else
+{
+    Console.WriteLine(result); // optimal
+}
+```
+
+Models that reference variables not declared in `Variables` (in a constraint or the objective) throw `ArgumentException` at solve time, naming the offending term.
 
 ### 2. Solving an Integer/Mixed-Integer Program
 
@@ -230,6 +266,26 @@ BranchBoundOptions.Optimal  // 1M nodes, 2h, 1e-6 gap, cuts enabled — prove op
 
 - **Most Fractional** — Branches on variable closest to 0.5
 - **Pseudo-Cost Branching** — Learns from historical branching effectiveness
+
+## Performance and Practical Limits
+
+There are no hardcoded size limits — the practical limit is solve time. The simplex uses a dense tableau, so cost grows roughly cubically with problem size. Reference timings for dense random LPs (n variables × n constraints, Apple Silicon):
+
+| Size (dense LP) | Solve time |
+|---|---|
+| 50 × 50 | ~3 ms |
+| 100 × 100 | ~25 ms |
+| 200 × 200 | ~250 ms |
+| 400 × 400 | ~3.5 s |
+| 800 × 800 | ~60 s |
+
+Guidelines:
+
+- **LP, interactive use (&lt; 1 s):** up to ~200–300 variables/constraints.
+- **LP, batch use (minutes):** ~800–1,500 variables.
+- **ILP/MILP:** ~30–40 integer variables is the comfortable range with `BranchBoundOptions.Quick`; harder instances need `Default`/`Optimal` budgets, and worst-case cost grows exponentially with the number of integer variables. Each node re-solves its LP from scratch, so total cost is roughly *LP solve time × nodes explored*.
+- **Memory** is not the bottleneck: a 1,000 × 2,000 tableau is ~16 MB.
+- **Numerics:** objective coefficients up to ~1e8 are safe with the data-scaled Big-M; beyond ~1e10, `double` precision erodes — rescale the model instead.
 
 ## Project Structure
 
